@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, ReactNode } from 'react';
 import { graphql, compose, MutationFunc, OptionProps } from 'react-apollo';
 import PT from 'prop-types';
 
@@ -40,7 +40,11 @@ class Cart extends PureComponent<Props, any> {
     removeAllFromCart: PT.func
   };
 
-  public render() {
+  public static defaultProps: ICartProps = {
+    cart: { books: [] }
+  };
+
+  public render(): ReactNode {
     const { cart } = this.props;
     return (
       <div>
@@ -99,7 +103,10 @@ class Cart extends PureComponent<Props, any> {
 
 export default compose(
   graphql(Q.CART, {
-    props: ({ data: { cart } }: OptionProps<TProps, TData, TGraphQLVariables>) => {
+    props: (props: any) => {
+      const {
+        data: { cart }
+      } = props;
       return {
         cart
       };

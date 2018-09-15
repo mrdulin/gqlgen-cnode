@@ -31,9 +31,9 @@ const config: webpack.Configuration = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(ts|tsx)$/,
         include: [src],
-        use: 'babel-loader'
+        use: 'ts-loader'
       },
       {
         test: /\.css$/,
