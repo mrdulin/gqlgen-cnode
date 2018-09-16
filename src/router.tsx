@@ -8,10 +8,9 @@ import Login from './containers/login';
 import { BookDetail, BookList } from './containers/library';
 import { TopicDetail, TopicList } from './containers/topic';
 import Cart from './containers/cart';
-
 import { PrivateRoute } from './shared/components/PrivateRoute';
 
-const AppRouter = () => (
+const AppRouter: React.SFC<any> = (): React.ReactElement<any> => (
   <HashRouter>
     <App>
       <Switch>

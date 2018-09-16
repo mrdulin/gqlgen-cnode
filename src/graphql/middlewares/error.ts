@@ -1,9 +1,11 @@
-import { onError } from 'apollo-link-error';
+import { onError, ErrorResponse } from 'apollo-link-error';
+import { ApolloLink } from 'apollo-link';
+import { ApolloClient } from 'apollo-client';
 
 import { auth } from '../../services';
 
-function createErrorLink() {
-  function errorHandler({ graphQLErrors, networkError, response, operation, forward }) {
+function createErrorLink(): ApolloLink {
+  function errorHandler({ graphQLErrors, networkError, response, operation, forward }: ErrorResponse) {
     if (graphQLErrors) {
       graphQLErrors.map(error => {
         if (error.code === 1001) {

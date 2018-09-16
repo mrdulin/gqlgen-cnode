@@ -1,7 +1,7 @@
-const webpack = require('webpack');
-const path = require('path');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+import webpack from 'webpack';
+import path from 'path';
+import CleanWebpackPlugin from 'clean-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 const cwd = process.cwd();
 
@@ -9,10 +9,10 @@ const src = path.resolve(cwd, 'src');
 const dist = path.resolve(cwd, 'dist');
 const port = 3000;
 
-module.exports = {
+const config: webpack.Configuration = {
   entry: {
     app: src,
-    vendors: ['react', 'react-dom', 'react-router-dom']
+    vendors: ['react', 'react-dom', 'react-router-dom', 'react-apollo']
   },
   output: {
     path: dist,
@@ -24,7 +24,8 @@ module.exports = {
     alias: {
       gqlMod: path.resolve(src, 'graphql'),
       services: path.resolve(src, 'services')
-    }
+    },
+    extensions: ['', '']
   },
   devtool: 'source-map',
   module: {
@@ -47,15 +48,10 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(dist),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendors'
-    }),
     new HtmlWebpackPlugin({
       template: src + '/index.html'
     })
-  ],
-  devServer: {
-    port,
-    host: '0.0.0.0'
-  }
+  ]
 };
+
+export default config;

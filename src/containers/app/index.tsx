@@ -4,13 +4,13 @@ import PT from 'prop-types';
 
 import { auth } from '../../services/auth';
 
-class App extends React.Component {
-  onLogout() {
-    auth.signout();
-    window.location.replace('#/login');
-  }
+class App extends React.PureComponent {
+  public static propTypes = {
+    children: PT.node,
+    history: PT.object
+  };
 
-  render() {
+  public render() {
     return (
       <div>
         <ul>
@@ -43,11 +43,11 @@ class App extends React.Component {
       </div>
     );
   }
+
+  private onLogout() {
+    auth.signout();
+    window.location.replace('#/login');
+  }
 }
 
-App.propTypes = {
-  children: PT.node,
-  history: PT.object
-};
-
-export default App;
+export { App };

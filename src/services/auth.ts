@@ -1,38 +1,39 @@
 class Auth {
-  static instance;
+  public static instance: Auth;
 
-  user;
+  public user: any;
 
   constructor() {
-    if (Auth.instance) return Auth.instance;
+    if (Auth.instance) {
+      return Auth.instance;
+    }
     Auth.instance = this;
     const token = localStorage.getItem('jwt');
     this.authenticate(token);
   }
 
-  authenticate(user, cb) {
+  public authenticate(user: any, cb?: () => void) {
     if (user) {
       this.user = user;
       localStorage.setItem('jwt', user.token);
-      cb && cb();
+      if (cb) {
+        cb();
+      }
     }
   }
 
-  signout() {
+  public signout() {
     this.user = undefined;
     localStorage.removeItem('jwt');
     window.location.replace('#/login');
   }
 
-  getJwt() {
+  public getJwt() {
     const jwt = localStorage.getItem('jwt') || '';
     return jwt;
   }
 }
 
 const auth = new Auth();
-const auth2 = new Auth();
-
-console.log(auth === auth2);
 
 export { auth, Auth };

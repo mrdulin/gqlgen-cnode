@@ -1,31 +1,47 @@
-import React, { Component } from 'react';
-import { graphql, compose } from 'react-apollo';
-
-import * as PT from 'prop-types';
+import React, { PureComponent } from 'react';
+import { graphql, compose, MutationFunc, OptionProps } from 'react-apollo';
+import PT from 'prop-types';
 
 import * as Q from 'gqlMod/queries/library.gql';
 import * as M from 'gqlMod/mutations/library.gql';
 
-class Cart extends Component {
-  minus(book) {
-    this.props.removeCountFromCart({ variables: { book } });
-  }
+import { IBook } from '../../types';
 
-  plus(book) {
-    this.props.addToCart({ variables: { book } });
-  }
+interface ICartMutations {
+  removeAllFromCart: MutationFunc;
+  addToCart: MutationFunc;
+  removeFromCart: MutationFunc;
+  removeCountFromCart: MutationFunc;
+}
 
-  remove(book) {
-    this.props.removeFromCart({ variables: { book } });
-  }
+interface ICartProps {
+  cart: {
+    books: IBook[];
+  };
+}
 
-  removeAll() {
-    this.props.removeAllFromCart();
-  }
+type Props = ICartMutations & ICartProps;
 
-  render() {
+class Cart extends PureComponent<Props, any> {
+  public static propsTypes = {
+    cart: PT.shape({
+      books: PT.arrayOf(
+        PT.shape({
+          id: PT.string.isRequired,
+          title: PT.string.isRequired,
+          author: PT.string.isRequired,
+          count: PT.number.isRequired
+        })
+      )
+    }),
+    addToCart: PT.func,
+    removeFromCart: PT.func,
+    removeCountFromCart: PT.func,
+    removeAllFromCart: PT.func
+  };
+
+  public render() {
     const { cart } = this.props;
-
     return (
       <div>
         <h2>Cart</h2>
@@ -63,28 +79,27 @@ class Cart extends Component {
       </div>
     );
   }
-}
 
-Cart.propTypes = {
-  cart: PT.shape({
-    books: PT.arrayOf(
-      PT.shape({
-        id: PT.string.isRequired,
-        title: PT.string.isRequired,
-        author: PT.string.isRequired,
-        count: PT.number.isRequired
-      })
-    )
-  }),
-  addToCart: PT.func,
-  removeFromCart: PT.func,
-  removeCountFromCart: PT.func,
-  removeAllFromCart: PT.func
-};
+  private minus(book: IBook) {
+    this.props.removeCountFromCart({ variables: { book } });
+  }
+
+  private plus(book: IBook) {
+    this.props.addToCart({ variables: { book } });
+  }
+
+  private remove(book: IBook) {
+    this.props.removeFromCart({ variables: { book } });
+  }
+
+  private removeAll() {
+    this.props.removeAllFromCart();
+  }
+}
 
 export default compose(
   graphql(Q.CART, {
-    props: ({ data: { cart } }) => {
+    props: ({ data: { cart } }: OptionProps<TProps, TData, TGraphQLVariables>) => {
       return {
         cart
       };
