@@ -165,7 +165,7 @@ class BookDetail extends PureComponent<Props, State> {
   private onCommentSumit(evt: React.FormEvent<HTMLFormElement>) {
     evt.preventDefault();
     const form: HTMLFormElement = evt.currentTarget;
-    const $comment = form.elements.comment;
+    const $comment = (form.elements as any).comment;
     const text = $comment.value.trim();
 
     this.props.addComment({ variables: { comment: { bookId: this.props.match.params.id, text } } }).then(res => {

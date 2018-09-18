@@ -52,4 +52,4 @@ class Upload extends PureComponent {
   }
 }
 
-export { Upload };
+export default Upload;

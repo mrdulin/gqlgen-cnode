@@ -34,6 +34,7 @@ class Login extends PureComponent<Props, State> {
   public render(): ReactNode {
     const { from } = this.props.location.state || { from: { pathname: '/' } };
     const { redirectToReferrer } = this.state;
+    console.log(redirectToReferrer);
     if (redirectToReferrer) {
       return <Redirect to={from} />;
     }

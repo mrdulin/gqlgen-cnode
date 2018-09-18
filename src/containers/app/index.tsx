@@ -4,7 +4,7 @@ import PT from 'prop-types';
 
 import { auth } from '../../services/auth';
 
-class App extends React.PureComponent {
+class App extends React.Component {
   public static propTypes = {
     children: PT.node,
     history: PT.object
@@ -50,4 +50,4 @@ class App extends React.PureComponent {
   }
 }
 
-export { App };
+export default App;

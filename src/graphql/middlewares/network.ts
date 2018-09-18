@@ -1,16 +1,15 @@
 import { getMainDefinition } from 'apollo-utilities';
-import { split } from 'apollo-boost';
+import { split, Operation } from 'apollo-link';
+import { ExecutableDefinitionNode } from 'graphql';
 
 import { httpLink } from './http';
 import { wsLink } from './ws';
 
-const networkLink = split(
-  ({ query }) => {
-    const { kind, operation } = getMainDefinition(query);
-    return kind === 'OperationDefinition' && operation === 'subscription';
-  },
-  wsLink,
-  httpLink
-);
+function test({ query }: Operation): boolean {
+  const def: ExecutableDefinitionNode = getMainDefinition(query);
+  return def.kind === 'OperationDefinition' && def.operation === 'subscription';
+}
+
+const networkLink = split(test, wsLink, httpLink);
 
 export { networkLink };

@@ -7,12 +7,32 @@ const cwd = process.cwd();
 
 const src = path.resolve(cwd, 'src');
 const dist = path.resolve(cwd, 'dist');
-const port = 3000;
+const port = 3001;
 
 const config: webpack.Configuration = {
   entry: {
     app: src,
-    vendors: ['react', 'react-dom', 'react-router-dom', 'react-apollo']
+    vendors: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'react-apollo',
+      'apollo-cache-inmemory',
+      'apollo-client',
+      'apollo-link',
+      'apollo-link-context',
+      'apollo-link-error',
+      'apollo-link-http',
+      'apollo-link-http-common',
+      'apollo-link-schema',
+      'apollo-link-state',
+      'apollo-link-ws',
+      'apollo-upload-client',
+      'apollo-utilities',
+      'graphql',
+      'graphql-tag',
+      'subscriptions-transport-ws'
+    ]
   },
   output: {
     path: dist,
@@ -25,11 +45,16 @@ const config: webpack.Configuration = {
       gqlMod: path.resolve(src, 'graphql'),
       services: path.resolve(src, 'services')
     },
-    extensions: ['', '']
+    extensions: ['.tsx', '.ts', '.mjs', '.js']
   },
   devtool: 'source-map',
   module: {
     rules: [
+      {
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto'
+      },
       {
         test: /\.(ts|tsx)$/,
         include: [src],
@@ -51,7 +76,11 @@ const config: webpack.Configuration = {
     new HtmlWebpackPlugin({
       template: src + '/index.html'
     })
-  ]
+  ],
+  devServer: {
+    contentBase: dist,
+    port
+  }
 };
 
 export default config;

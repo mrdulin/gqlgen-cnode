@@ -8,7 +8,7 @@ import * as Q from 'gqlMod/queries/upload.gql';
 
 interface IUploadProps {
   mutation: DocumentNode;
-  multiple: boolean;
+  multiple?: boolean;
 }
 
 class UploadFile extends PureComponent<IUploadProps> {
@@ -24,7 +24,7 @@ class UploadFile extends PureComponent<IUploadProps> {
         mutation={mutation}
         update={(proxy: DataProxy, mutationResult: FetchResult<any>) => {
           const data: any = proxy.readQuery({ query: Q.uploads });
-          let newUploads = [];
+          let newUploads: any[] = [];
           if (multiple) {
             newUploads = mutationResult.data.multipleUpload;
           } else {

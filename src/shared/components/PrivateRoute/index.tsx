@@ -8,6 +8,7 @@ const PrivateRoute: SFC<RouteProps> = ({
   component: Component,
   ...rest
 }: RouteProps): ReactElement<RouteProps> | null => {
+  console.log('Component: ', Component);
   if (Component) {
     return (
       <Route

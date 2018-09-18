@@ -30,22 +30,24 @@ const commentsByPage: Enhancer = graphql(Q.COMMENT_BY_PAGE, {
   },
   props: ({ data }) => {
     return {
-      onLoadMore: ({ id, offset, limit, skip }) => {
-        return data.fetchMore({
-          variables: {
-            id,
-            offset,
-            limit,
-            skip
-          },
-          updateQuery: (prev, { fetchMoreResult }) => {
-            if (!fetchMoreResult) {
+      onLoadMore: ({ id, offset, limit, skip }: any) => {
+        if (data) {
+          return data.fetchMore({
+            variables: {
+              id,
+              offset,
+              limit,
+              skip
+            },
+            updateQuery: (prev, { fetchMoreResult }) => {
+              if (!fetchMoreResult) {
+                return prev;
+              }
+              // Can I update local state here?
               return prev;
             }
-            // Can I update local state here?
-            return prev;
-          }
-        });
+          });
+        }
       }
     };
   }

@@ -1,9 +1,9 @@
 import React from 'react';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 
-import { App } from './containers/app';
-import { Home } from './containers/home';
-import { Upload } from './containers/upload';
+import App from './containers/app';
+import Home from './containers/home';
+import Upload from './containers/upload';
 import Login from './containers/login';
 import { BookDetail, BookList } from './containers/library';
 // import { TopicDetail, TopicList } from './containers/topic';
