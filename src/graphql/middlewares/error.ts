@@ -7,19 +7,19 @@ import { auth } from '../../services';
 function createErrorLink(): ApolloLink {
   function errorHandler({ graphQLErrors, networkError, response, operation, forward }: ErrorResponse) {
     if (graphQLErrors) {
-      graphQLErrors.map(error => {
+      graphQLErrors.map((error: any) => {
         if (error.code === 1001) {
           auth.signout();
-          //https://github.com/apollographql/apollo-link/pull/144
-          response.errors = null;
+          // https://github.com/apollographql/apollo-link/pull/144
+          (response as any).errors = null;
         }
       });
     }
 
     if (networkError) {
-      if (networkError.statusCode === 401) {
+      if ((networkError as any).statusCode === 401) {
         auth.signout();
-        response.errors = null;
+        (response as any).errors = null;
       }
     }
   }

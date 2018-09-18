@@ -40,7 +40,7 @@ class Login extends PureComponent<Props, State> {
 
     return (
       <Mutation mutation={M.LOGIN}>
-        {(login, mutationResult) => {
+        {(mutate: (...args: any[]) => any, mutationResult): ReactNode => {
           const formControl: IFormControl = {
             email: null,
             password: null
@@ -56,7 +56,7 @@ class Login extends PureComponent<Props, State> {
           }
 
           return (
-            <form onSubmit={e => this.login(e, login)}>
+            <form onSubmit={e => this.login(e, mutate)}>
               <div>
                 <input type="text" placeholder="email" name="email" ref={ref => (formControl.email = ref)} />
               </div>
@@ -78,10 +78,10 @@ class Login extends PureComponent<Props, State> {
     );
   }
 
-  private login(e, mutate) {
+  private login(e: React.SyntheticEvent<HTMLFormElement>, mutate: (...args: any[]) => any) {
     e.preventDefault();
-    const { target } = e.nativeEvent;
-    const { email, password } = target.elements;
+    const { currentTarget } = e;
+    const { email, password } = currentTarget.elements as any;
 
     const emailValue = email.value.trim();
     const passwordValue = password.value.trim();
@@ -96,7 +96,7 @@ class Login extends PureComponent<Props, State> {
       return;
     }
 
-    mutate({ variables: { email: emailValue, password: passwordValue } }).then(({ data }) => {
+    mutate({ variables: { email: emailValue, password: passwordValue } }).then(({ data }: any) => {
       if (data && data.login) {
         auth.authenticate(data.login, () => {
           this.setState({ redirectToReferrer: true });

@@ -1,12 +1,12 @@
-import React, { Component } from 'react';
+import React, { PureComponent, ReactNode, ReactNodeArray } from 'react';
 import { Query } from 'react-apollo';
 
 import * as M from 'gqlMod/mutations/upload.gql';
 import * as Q from 'gqlMod/queries/upload.gql';
-import UploadFile from './components/UploadFile';
+import { UploadFile } from './components/UploadFile';
 
-class Upload extends Component {
-  render() {
+class Upload extends PureComponent {
+  public render(): ReactNode {
     return (
       <div>
         <section>
@@ -18,9 +18,13 @@ class Upload extends Component {
         <section>
           <Query query={Q.uploads}>
             {({ error, loading, data }) => {
-              if (loading) return <p>loading...</p>;
-              if (error) return <p>error</p>;
-              const rowsJSX = data.uploads.map(file => {
+              if (loading) {
+                return <p>loading...</p>;
+              }
+              if (error) {
+                return <p>error</p>;
+              }
+              const rowsJSX: ReactNodeArray = data.uploads.map((file: any) => {
                 return (
                   <tr key={file.id}>
                     <td>{file.id}</td>
@@ -48,4 +52,4 @@ class Upload extends Component {
   }
 }
 
-export default Upload;
+export { Upload };

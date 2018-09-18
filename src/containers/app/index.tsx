@@ -20,9 +20,9 @@ class App extends React.PureComponent {
           <li>
             <Link to="/book-list">BookList</Link>
           </li>
-          <li>
+          {/* <li>
             <Link to="/topics">Topics</Link>
-          </li>
+          </li> */}
           <li>
             <Link to="/upload">Upload</Link>
           </li>
