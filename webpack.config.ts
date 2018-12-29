@@ -43,11 +43,12 @@ const config: webpack.Configuration = {
   resolve: {
     alias: {
       gqlMod: path.resolve(src, 'graphql'),
-      services: path.resolve(src, 'services')
+      services: path.resolve(src, 'services'),
+      types: path.resolve(src, 'types')
     },
     extensions: ['.tsx', '.ts', '.mjs', '.js']
   },
-  devtool: 'source-map',
+  devtool: 'inline-source-map',
   module: {
     rules: [
       {

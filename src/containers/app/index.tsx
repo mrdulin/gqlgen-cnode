@@ -1,13 +1,22 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import PT from 'prop-types';
+import React, { ReactNode } from "react";
+import { Link, RouteComponentProps } from "react-router-dom";
+import PT from "prop-types";
 
-import { auth } from '../../services/auth';
+import { auth } from "../../services/auth";
 
-class App extends React.Component {
+interface IAppProps {
+  children?: ReactNode;
+}
+type Props = Readonly<RouteComponentProps & IAppProps>;
+
+class App extends React.Component<Props> {
   public static propTypes = {
     children: PT.node,
     history: PT.object
+  };
+
+  public static defaultProps: Partial<Props> = {
+    children: null
   };
 
   public render() {
@@ -25,6 +34,9 @@ class App extends React.Component {
           </li> */}
           <li>
             <Link to="/upload">Upload</Link>
+          </li>
+          <li>
+            <Link to="/register">register</Link>
           </li>
         </ul>
 
@@ -46,7 +58,7 @@ class App extends React.Component {
 
   private onLogout() {
     auth.signout();
-    window.location.replace('#/login');
+    window.location.replace("#/login");
   }
 }
 

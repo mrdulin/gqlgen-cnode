@@ -1,6 +1,6 @@
 import React, { PureComponent, ReactNode } from 'react';
 import { Mutation } from 'react-apollo';
-import { Redirect, RouteComponentProps } from 'react-router-dom';
+import { Redirect, RouteComponentProps, Link } from 'react-router-dom';
 import PT from 'prop-types';
 
 import * as M from 'gqlMod/mutations/user.gql';
@@ -34,7 +34,6 @@ class Login extends PureComponent<Props, State> {
   public render(): ReactNode {
     const { from } = this.props.location.state || { from: { pathname: '/' } };
     const { redirectToReferrer } = this.state;
-    console.log(redirectToReferrer);
     if (redirectToReferrer) {
       return <Redirect to={from} />;
     }
@@ -71,6 +70,7 @@ class Login extends PureComponent<Props, State> {
               </div>
               <div>
                 <input type="submit" value="Login" />
+                <Link to="/register">register</Link>
               </div>
             </form>
           );
