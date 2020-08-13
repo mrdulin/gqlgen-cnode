@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -27,6 +28,8 @@ type IHttpClient interface {
 	Get(url string, data interface{}) error
 	Post(url string, body interface{}, data interface{}) error
 	HandleAPIError(res Response) error
+	Decode(body io.ReadCloser, res *Response) error
+	Unmarshal(byte []byte, data interface{}) error
 }
 
 type httpClient struct {
@@ -46,16 +49,14 @@ func (h *httpClient) Get(url string, data interface{}) error {
 	defer resp.Body.Close()
 
 	var res Response
-	err = json.NewDecoder(resp.Body).Decode(&res)
-	if err != nil {
-		return errors.Wrapf(err, "json.NewDecoder(resp.Body).Decode(&res)")
+	if err = h.Decode(resp.Body, &res); err != nil {
+		return err
 	}
 	if err = h.HandleAPIError(res); err != nil {
 		return err
 	}
-	err = json.Unmarshal(res.Data, data)
-	if err != nil {
-		return errors.Wrapf(err, "json.Unmarshal. res.Data: %s", string(res.Data))
+	if err = h.Unmarshal(res.Data, data); err != nil {
+		return err
 	}
 	return nil
 }
@@ -72,18 +73,31 @@ func (h *httpClient) Post(url string, body interface{}, data interface{}) error 
 		return errors.Wrapf(err, "http.Post(url, \"application/json\", bytes.NewBuffer(jsonValue)). jsonValue: %+v", jsonValue)
 	}
 	defer resp.Body.Close()
-	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err = h.Decode(resp.Body, &res); err != nil {
+		return err
+	}
+	if err = h.HandleAPIError(res); err != nil {
+		return err
+	}
+	if err = h.Unmarshal(res.Data, data); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *httpClient) Decode(body io.ReadCloser, res *Response) error {
+	err := json.NewDecoder(body).Decode(res)
 	if err != nil {
 		return errors.Wrapf(err, "json.NewDecoder(resp.Body).Decode(&res)")
 	}
-	if err := h.HandleAPIError(res); err != nil {
-		return err
-	}
-	err = json.Unmarshal(res.Data, &data)
-	if err != nil {
-		return errors.Wrapf(err, "json.Unmarshal. res.Data: %s", string(res.Data))
-	}
+	return nil
+}
 
+func (h *httpClient) Unmarshal(byte []byte, data interface{}) error {
+	err := json.Unmarshal(byte, &data)
+	if err != nil {
+		return errors.Wrapf(err, "json.Unmarshal. []byte: %s", string(byte))
+	}
 	return nil
 }
 
