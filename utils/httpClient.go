@@ -4,32 +4,29 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/pkg/errors"
 )
 
 type ResponseData struct {
-	Data interface{} `json:"data"`
+	Data json.RawMessage `json:"data"`
 }
 type ResponseStatus struct {
 	Success      bool   `json:"success"`
 	ErrorMessage string `json:"error_msg"`
 }
 
-// Response cnode API response struct
+// Response API response struct
 type Response struct {
 	ResponseStatus
 	ResponseData
 }
 
-type ResponseMap map[string]interface{}
-
 type IHttpClient interface {
-	Get(url string) (interface{}, error)
-	Post(url string, body interface{}) (interface{}, error)
-	HandleAPIError(res ResponseMap) error
+	Get(url string, data interface{}) error
+	Post(url string, body interface{}, data interface{}) error
+	HandleAPIError(res Response) error
 }
 
 type httpClient struct {
@@ -40,58 +37,59 @@ func NewHttpClient() *httpClient {
 	return &httpClient{}
 }
 
-// RequestGet send GET HTTP request
-func (h *httpClient) Get(url string) (interface{}, error) {
-	var res ResponseMap
+//Get send GET HTTP request
+func (h *httpClient) Get(url string, data interface{}) error {
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, errors.Wrap(err, "http.Get(url)")
+		return errors.Wrap(err, "http.Get(url)")
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+
+	var res Response
+	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
-		return nil, errors.Wrapf(err, "ioutil.ReadAll(resp.Body). resp.Body: %+v", resp.Body)
+		return errors.Wrapf(err, "json.NewDecoder(resp.Body).Decode(&res)")
 	}
-	err = json.Unmarshal(body, &res)
+	if err = h.HandleAPIError(res); err != nil {
+		return err
+	}
+	err = json.Unmarshal(res.Data, data)
 	if err != nil {
-		return nil, errors.Wrapf(err, "json.Unmarshal error. body: %s", string(body))
+		return errors.Wrapf(err, "json.Unmarshal. res.Data: %s", string(res.Data))
 	}
-	if err := h.HandleAPIError(res); err != nil {
-		return nil, err
-	}
-	return res["data"], nil
+	return nil
 }
 
-// RequestPost send POST HTTP request
-func (h *httpClient) Post(url string, body interface{}) (interface{}, error) {
-	var res ResponseMap
+//Post send POST HTTP request
+func (h *httpClient) Post(url string, body interface{}, data interface{}) error {
+	var res Response
 	jsonValue, err := json.Marshal(body)
 	if err != nil {
-		return nil, errors.Wrapf(err, "json.Marshal(body). body: %+v", body)
+		return errors.Wrapf(err, "json.Marshal(body). body: %+v", body)
 	}
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonValue))
 	if err != nil {
-		return nil, errors.Wrapf(err, "http.Post(url, \"application/json\", bytes.NewBuffer(jsonValue)). jsonValue: %+v", jsonValue)
+		return errors.Wrapf(err, "http.Post(url, \"application/json\", bytes.NewBuffer(jsonValue)). jsonValue: %+v", jsonValue)
 	}
 	defer resp.Body.Close()
-	respBody, err := ioutil.ReadAll(resp.Body)
+	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
-		return nil, errors.Wrapf(err, "ioutil.ReadAll(resp.Body). resp.Body: %+v", resp.Body)
-	}
-
-	err = json.Unmarshal(respBody, &res)
-	if err != nil {
-		return nil, errors.Wrapf(err, "json.Unmarshal. body: %s", string(respBody))
+		return errors.Wrapf(err, "json.NewDecoder(resp.Body).Decode(&res)")
 	}
 	if err := h.HandleAPIError(res); err != nil {
-		return nil, err
+		return err
 	}
-	return res, nil
+	err = json.Unmarshal(res.Data, &data)
+	if err != nil {
+		return errors.Wrapf(err, "json.Unmarshal. res.Data: %s", string(res.Data))
+	}
+
+	return nil
 }
 
-func (h *httpClient) HandleAPIError(res ResponseMap) error {
-	if res["success"] == false {
-		return fmt.Errorf("API error: %+v", res["error_msg"])
+func (h *httpClient) HandleAPIError(res Response) error {
+	if !res.Success {
+		return fmt.Errorf("API error: %s", res.ErrorMessage)
 	}
 	return nil
 }

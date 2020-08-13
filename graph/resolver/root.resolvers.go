@@ -5,7 +5,6 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 
 	"github.com/mrdulin/gqlgen-cnode/graph/generated"
@@ -20,7 +19,7 @@ func (r *queryResolver) Topics(ctx context.Context, limit *string, page *string)
 }
 
 func (r *queryResolver) Topic(ctx context.Context, id string) (*model.TopicDetail, error) {
-	panic(fmt.Errorf("not implemented"))
+	return r.TopicService.GetTopicById(id), nil
 }
 
 // Query returns generated.QueryResolver implementation.

@@ -15,7 +15,7 @@ type topicService struct {
 
 type TopicService interface {
 	GetTopicsByPage(urlValues *url.Values) []*model.Topic
-	GetTopicById(id string) interface{}
+	GetTopicById(id string) *model.TopicDetail
 }
 
 func NewTopicService(httpClient utils.IHttpClient, BaseURL string) *topicService {
@@ -29,20 +29,21 @@ func (t *topicService) GetTopicsByPage(urlValues *url.Values) []*model.Topic {
 		return res
 	}
 	base.RawQuery = urlValues.Encode()
-	body, err := t.HttpClient.Get(base.String())
+	err = t.HttpClient.Get(base.String(), &res)
 	if err != nil {
 		fmt.Println(err)
 		return res
 	}
-	return body.([]*model.Topic)
+	return res
 }
 
-func (t *topicService) GetTopicById(id string) interface{} {
+func (t *topicService) GetTopicById(id string) *model.TopicDetail {
 	endpoint := t.BaseURL + "/topic/" + id
-	body, err := t.HttpClient.Get(endpoint)
+	res := model.TopicDetail{}
+	err := t.HttpClient.Get(endpoint, &res)
 	if err != nil {
 		fmt.Println(err)
-		return body
+		return &res
 	}
-	return body
+	return &res
 }
