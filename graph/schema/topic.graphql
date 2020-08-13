@@ -1,0 +1,39 @@
+type Topic {
+  id: ID!
+  author_id: ID!
+  tab: String
+  content: String
+  title: String!
+  last_reply_at: String
+  good: Boolean
+  top: Boolean
+  reply_count: Int
+  visit_count: Int
+  create_at: String
+  is_collect: Boolean
+  author: User
+}
+
+type TopicDetail {
+  id: ID!
+  author_id: ID!
+  tab: String
+  content: String
+  title: String!
+  last_reply_at: String
+  good: Boolean
+  top: Boolean
+  reply_count: Int
+  visit_count: Int
+  create_at: String
+  is_collect: Boolean
+  replies: [Reply]
+  author: User
+}
+
+type RecentTopic { 
+  id: ID!
+  title: String
+  last_reply_at: String
+  author: User 
+}

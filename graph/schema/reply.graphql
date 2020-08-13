@@ -1,0 +1,17 @@
+type Reply { 
+  id: ID!
+  content: String
+  create_at: String
+  reply_id: ID
+  is_uped: Boolean
+  ups: [ID]!
+  author: User 
+}
+
+type RecentReply { 
+  id: ID!
+  title: String
+  last_reply_at: String
+  author: User 
+}
+
