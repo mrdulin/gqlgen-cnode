@@ -10,7 +10,7 @@ import (
 	"github.com/mrdulin/gqlgen-cnode/graph/model"
 )
 
-func (r *mutationResolver) ValidateAccessToken(ctx context.Context, accesstoken string) (*model.User, error) {
+func (r *mutationResolver) ValidateAccessToken(ctx context.Context, accesstoken string) (*model.UserEntity, error) {
 	return r.UserService.ValidateAccessToken(accesstoken), nil
 }
 
@@ -24,6 +24,14 @@ func (r *queryResolver) Topic(ctx context.Context, params model.TopicRequestPara
 
 func (r *queryResolver) User(ctx context.Context, loginname string) (*model.UserDetail, error) {
 	return r.UserService.GetUserByLoginname(loginname), nil
+}
+
+func (r *queryResolver) Messages(ctx context.Context, accesstoken string, mdrender *string) (*model.MessagesResponse, error) {
+	return r.MessageService.GetMessages(accesstoken, *mdrender), nil
+}
+
+func (r *queryResolver) UnreadMessage(ctx context.Context, accesstoken string) (int, error) {
+	return r.MessageService.GetUnreadMessage(accesstoken), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

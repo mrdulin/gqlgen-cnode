@@ -7,6 +7,7 @@ import "github.com/mrdulin/gqlgen-cnode/services"
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	TopicService services.TopicService
-	UserService  services.UserService
+	TopicService   services.TopicService
+	UserService    services.UserService
+	MessageService services.MessageService
 }

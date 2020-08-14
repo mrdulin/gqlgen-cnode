@@ -10,7 +10,7 @@ import (
 	"github.com/mrdulin/gqlgen-cnode/graph/generated"
 	"github.com/mrdulin/gqlgen-cnode/graph/resolver"
 	"github.com/mrdulin/gqlgen-cnode/services"
-	"github.com/mrdulin/gqlgen-cnode/utils/httpClient"
+	appHttp "github.com/mrdulin/gqlgen-cnode/utils/http"
 )
 
 const defaultPort = "8080"
@@ -25,13 +25,15 @@ func main() {
 	if baseUrl == "" {
 		baseUrl = BaseURL
 	}
-	hc := httpClient.New()
+	hc := appHttp.NewClient()
 	topicService := services.NewTopicService(hc, baseUrl)
 	userService := services.NewUserService(hc, baseUrl)
+	messageService := services.NewMessageService(hc, baseUrl)
 
 	resolvers := resolver.Resolver{
-		TopicService: topicService,
-		UserService:  userService,
+		TopicService:   topicService,
+		UserService:    userService,
+		MessageService: messageService,
 	}
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolvers}))

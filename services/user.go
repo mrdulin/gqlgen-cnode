@@ -3,8 +3,9 @@ package services
 import (
 	"fmt"
 
+	"github.com/mrdulin/gqlgen-cnode/utils/http"
+
 	"github.com/mrdulin/gqlgen-cnode/graph/model"
-	"github.com/mrdulin/gqlgen-cnode/utils/httpClient"
 )
 
 type validateAccessTokenRequestPayload struct {
@@ -12,16 +13,16 @@ type validateAccessTokenRequestPayload struct {
 }
 
 type userService struct {
-	HttpClient httpClient.HttpClient
+	HttpClient http.Client
 	BaseURL    string
 }
 
 type UserService interface {
 	GetUserByLoginname(loginname string) *model.UserDetail
-	ValidateAccessToken(accesstoken string) *model.User
+	ValidateAccessToken(accesstoken string) *model.UserEntity
 }
 
-func NewUserService(httpClient httpClient.HttpClient, BaseURL string) *userService {
+func NewUserService(httpClient http.Client, BaseURL string) *userService {
 	return &userService{HttpClient: httpClient, BaseURL: BaseURL}
 }
 
@@ -36,9 +37,9 @@ func (u *userService) GetUserByLoginname(loginname string) *model.UserDetail {
 	return res
 }
 
-func (u *userService) ValidateAccessToken(accesstoken string) *model.User {
+func (u *userService) ValidateAccessToken(accesstoken string) *model.UserEntity {
 	url := u.BaseURL + "/accesstoken"
-	var res *model.User
+	var res *model.UserEntity
 	err := u.HttpClient.Post(url, &validateAccessTokenRequestPayload{AccessToken: accesstoken}, &res)
 	if err != nil {
 		fmt.Println(err)

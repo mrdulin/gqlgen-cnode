@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/mrdulin/gqlgen-cnode/utils/http"
+
 	"github.com/google/go-querystring/query"
 
 	"github.com/mrdulin/gqlgen-cnode/graph/model"
-	"github.com/mrdulin/gqlgen-cnode/utils/httpClient"
 )
 
 type topicService struct {
-	HttpClient httpClient.HttpClient
+	HttpClient http.Client
 	BaseURL    string
 }
 
@@ -20,7 +21,7 @@ type TopicService interface {
 	GetTopicById(params *model.TopicRequestParams) *model.TopicDetail
 }
 
-func NewTopicService(httpClient httpClient.HttpClient, BaseURL string) *topicService {
+func NewTopicService(httpClient http.Client, BaseURL string) *topicService {
 	return &topicService{HttpClient: httpClient, BaseURL: BaseURL}
 }
 func (t *topicService) GetTopicsByPage(params *model.TopicsRequestParams) []*model.Topic {

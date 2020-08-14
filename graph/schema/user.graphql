@@ -1,7 +1,12 @@
-type User {
-  id: ID! 
+type User { 
   loginname: String 
   avatar_url: String 
+}
+
+type UserEntity {
+  id: ID!
+  loginname: String 
+  avatar_url: String
 }
 
 type UserDetail { 
@@ -10,6 +15,6 @@ type UserDetail {
   githubUsername: String
   create_at: String
   score: Int
-  recent_replies: [RecentReply]
-  recent_topics: [RecentTopic] 
+  recent_replies: [ReplyRecent]
+  recent_topics: [TopicRecent] 
 }

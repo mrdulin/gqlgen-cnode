@@ -1,0 +1,14 @@
+type Message {
+  id: ID!
+  type: String
+  has_read: Boolean
+  create_at: String
+  reply: ReplyForMessage
+  topic: TopicForMessage
+  author: User 
+}
+
+type MessagesResponse {
+  has_read_messages: [Message]!
+  hasnot_read_messages: [Message]!
+}

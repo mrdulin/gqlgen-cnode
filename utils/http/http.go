@@ -1,4 +1,4 @@
-package httpClient
+package http
 
 import (
 	"bytes"
@@ -26,7 +26,7 @@ type Response struct {
 
 type ResponseMap map[string]interface{}
 
-type HttpClient interface {
+type Client interface {
 	Get(url string, data interface{}) error
 	Post(url string, body interface{}, data interface{}) error
 	HandleAPIError(res interface{}) error
@@ -34,14 +34,14 @@ type HttpClient interface {
 	Unmarshal(byte interface{}, data interface{}) error
 }
 
-type httpClient struct{}
+type client struct{}
 
-func New() *httpClient {
-	return &httpClient{}
+func NewClient() *client {
+	return &client{}
 }
 
 //Get send GET HTTP request
-func (h *httpClient) Get(url string, data interface{}) error {
+func (h *client) Get(url string, data interface{}) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return errors.Wrap(err, "http.Get(url)")
@@ -62,7 +62,7 @@ func (h *httpClient) Get(url string, data interface{}) error {
 }
 
 //Post send POST HTTP request
-func (h *httpClient) Post(url string, body interface{}, data interface{}) error {
+func (h *client) Post(url string, body interface{}, data interface{}) error {
 	var res ResponseMap
 	jsonValue, err := json.Marshal(body)
 	if err != nil {
@@ -85,7 +85,7 @@ func (h *httpClient) Post(url string, body interface{}, data interface{}) error 
 	return nil
 }
 
-func (h *httpClient) Decode(body io.ReadCloser, res interface{}) error {
+func (h *client) Decode(body io.ReadCloser, res interface{}) error {
 	err := json.NewDecoder(body).Decode(res)
 	if err != nil {
 		return errors.Wrapf(err, "json.NewDecoder(resp.Body).Decode(&res)")
@@ -93,7 +93,7 @@ func (h *httpClient) Decode(body io.ReadCloser, res interface{}) error {
 	return nil
 }
 
-func (h *httpClient) Unmarshal(res interface{}, data interface{}) error {
+func (h *client) Unmarshal(res interface{}, data interface{}) error {
 	var (
 		bs  []byte
 		err error
@@ -119,7 +119,7 @@ func (h *httpClient) Unmarshal(res interface{}, data interface{}) error {
 	return nil
 }
 
-func (h *httpClient) HandleAPIError(res interface{}) error {
+func (h *client) HandleAPIError(res interface{}) error {
 	var (
 		success      bool
 		errorMessage string
@@ -130,7 +130,9 @@ func (h *httpClient) HandleAPIError(res interface{}) error {
 		errorMessage = v.ErrorMessage
 	case ResponseMap:
 		success = v["success"].(bool)
-		errorMessage = v["error_msg"].(string)
+		if v["error_msg"] != nil {
+			errorMessage = v["error_msg"].(string)
+		}
 	}
 	if !success {
 		return fmt.Errorf("API error: %s", errorMessage)

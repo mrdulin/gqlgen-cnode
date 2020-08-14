@@ -8,7 +8,14 @@ type Reply {
   author: User 
 }
 
-type RecentReply { 
+type ReplyForMessage { 
+  id: String
+  content: String
+  create_at: String
+  ups: [ID]!
+}
+
+type ReplyRecent { 
   id: ID!
   title: String
   last_reply_at: String

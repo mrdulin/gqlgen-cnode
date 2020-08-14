@@ -43,28 +43,31 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Message struct {
+		Author   func(childComplexity int) int
+		CreateAt func(childComplexity int) int
+		HasRead  func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Reply    func(childComplexity int) int
+		Topic    func(childComplexity int) int
+		Type     func(childComplexity int) int
+	}
+
+	MessagesResponse struct {
+		HasReadMessages    func(childComplexity int) int
+		HasnotReadMessages func(childComplexity int) int
+	}
+
 	Mutation struct {
 		ValidateAccessToken func(childComplexity int, accesstoken string) int
 	}
 
 	Query struct {
-		Topic  func(childComplexity int, params model.TopicRequestParams) int
-		Topics func(childComplexity int, params model.TopicsRequestParams) int
-		User   func(childComplexity int, loginname string) int
-	}
-
-	RecentReply struct {
-		Author      func(childComplexity int) int
-		ID          func(childComplexity int) int
-		LastReplyAt func(childComplexity int) int
-		Title       func(childComplexity int) int
-	}
-
-	RecentTopic struct {
-		Author      func(childComplexity int) int
-		ID          func(childComplexity int) int
-		LastReplyAt func(childComplexity int) int
-		Title       func(childComplexity int) int
+		Messages      func(childComplexity int, accesstoken string, mdrender *string) int
+		Topic         func(childComplexity int, params model.TopicRequestParams) int
+		Topics        func(childComplexity int, params model.TopicsRequestParams) int
+		UnreadMessage func(childComplexity int, accesstoken string) int
+		User          func(childComplexity int, loginname string) int
 	}
 
 	Reply struct {
@@ -75,6 +78,20 @@ type ComplexityRoot struct {
 		IsUped   func(childComplexity int) int
 		ReplyID  func(childComplexity int) int
 		Ups      func(childComplexity int) int
+	}
+
+	ReplyForMessage struct {
+		Content  func(childComplexity int) int
+		CreateAt func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Ups      func(childComplexity int) int
+	}
+
+	ReplyRecent struct {
+		Author      func(childComplexity int) int
+		ID          func(childComplexity int) int
+		LastReplyAt func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	Topic struct {
@@ -110,9 +127,21 @@ type ComplexityRoot struct {
 		VisitCount  func(childComplexity int) int
 	}
 
+	TopicForMessage struct {
+		ID          func(childComplexity int) int
+		LastReplyAt func(childComplexity int) int
+		Title       func(childComplexity int) int
+	}
+
+	TopicRecent struct {
+		Author      func(childComplexity int) int
+		ID          func(childComplexity int) int
+		LastReplyAt func(childComplexity int) int
+		Title       func(childComplexity int) int
+	}
+
 	User struct {
 		AvatarURL func(childComplexity int) int
-		ID        func(childComplexity int) int
 		Loginname func(childComplexity int) int
 	}
 
@@ -125,15 +154,23 @@ type ComplexityRoot struct {
 		RecentTopics   func(childComplexity int) int
 		Score          func(childComplexity int) int
 	}
+
+	UserEntity struct {
+		AvatarURL func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Loginname func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
-	ValidateAccessToken(ctx context.Context, accesstoken string) (*model.User, error)
+	ValidateAccessToken(ctx context.Context, accesstoken string) (*model.UserEntity, error)
 }
 type QueryResolver interface {
 	Topics(ctx context.Context, params model.TopicsRequestParams) ([]*model.Topic, error)
 	Topic(ctx context.Context, params model.TopicRequestParams) (*model.TopicDetail, error)
 	User(ctx context.Context, loginname string) (*model.UserDetail, error)
+	Messages(ctx context.Context, accesstoken string, mdrender *string) (*model.MessagesResponse, error)
+	UnreadMessage(ctx context.Context, accesstoken string) (int, error)
 }
 
 type executableSchema struct {
@@ -151,6 +188,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "Message.author":
+		if e.complexity.Message.Author == nil {
+			break
+		}
+
+		return e.complexity.Message.Author(childComplexity), true
+
+	case "Message.create_at":
+		if e.complexity.Message.CreateAt == nil {
+			break
+		}
+
+		return e.complexity.Message.CreateAt(childComplexity), true
+
+	case "Message.has_read":
+		if e.complexity.Message.HasRead == nil {
+			break
+		}
+
+		return e.complexity.Message.HasRead(childComplexity), true
+
+	case "Message.id":
+		if e.complexity.Message.ID == nil {
+			break
+		}
+
+		return e.complexity.Message.ID(childComplexity), true
+
+	case "Message.reply":
+		if e.complexity.Message.Reply == nil {
+			break
+		}
+
+		return e.complexity.Message.Reply(childComplexity), true
+
+	case "Message.topic":
+		if e.complexity.Message.Topic == nil {
+			break
+		}
+
+		return e.complexity.Message.Topic(childComplexity), true
+
+	case "Message.type":
+		if e.complexity.Message.Type == nil {
+			break
+		}
+
+		return e.complexity.Message.Type(childComplexity), true
+
+	case "MessagesResponse.has_read_messages":
+		if e.complexity.MessagesResponse.HasReadMessages == nil {
+			break
+		}
+
+		return e.complexity.MessagesResponse.HasReadMessages(childComplexity), true
+
+	case "MessagesResponse.hasnot_read_messages":
+		if e.complexity.MessagesResponse.HasnotReadMessages == nil {
+			break
+		}
+
+		return e.complexity.MessagesResponse.HasnotReadMessages(childComplexity), true
+
 	case "Mutation.validateAccessToken":
 		if e.complexity.Mutation.ValidateAccessToken == nil {
 			break
@@ -162,6 +262,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.ValidateAccessToken(childComplexity, args["accesstoken"].(string)), true
+
+	case "Query.messages":
+		if e.complexity.Query.Messages == nil {
+			break
+		}
+
+		args, err := ec.field_Query_messages_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Messages(childComplexity, args["accesstoken"].(string), args["mdrender"].(*string)), true
 
 	case "Query.topic":
 		if e.complexity.Query.Topic == nil {
@@ -187,6 +299,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Topics(childComplexity, args["params"].(model.TopicsRequestParams)), true
 
+	case "Query.unreadMessage":
+		if e.complexity.Query.UnreadMessage == nil {
+			break
+		}
+
+		args, err := ec.field_Query_unreadMessage_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.UnreadMessage(childComplexity, args["accesstoken"].(string)), true
+
 	case "Query.user":
 		if e.complexity.Query.User == nil {
 			break
@@ -198,62 +322,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.User(childComplexity, args["loginname"].(string)), true
-
-	case "RecentReply.author":
-		if e.complexity.RecentReply.Author == nil {
-			break
-		}
-
-		return e.complexity.RecentReply.Author(childComplexity), true
-
-	case "RecentReply.id":
-		if e.complexity.RecentReply.ID == nil {
-			break
-		}
-
-		return e.complexity.RecentReply.ID(childComplexity), true
-
-	case "RecentReply.last_reply_at":
-		if e.complexity.RecentReply.LastReplyAt == nil {
-			break
-		}
-
-		return e.complexity.RecentReply.LastReplyAt(childComplexity), true
-
-	case "RecentReply.title":
-		if e.complexity.RecentReply.Title == nil {
-			break
-		}
-
-		return e.complexity.RecentReply.Title(childComplexity), true
-
-	case "RecentTopic.author":
-		if e.complexity.RecentTopic.Author == nil {
-			break
-		}
-
-		return e.complexity.RecentTopic.Author(childComplexity), true
-
-	case "RecentTopic.id":
-		if e.complexity.RecentTopic.ID == nil {
-			break
-		}
-
-		return e.complexity.RecentTopic.ID(childComplexity), true
-
-	case "RecentTopic.last_reply_at":
-		if e.complexity.RecentTopic.LastReplyAt == nil {
-			break
-		}
-
-		return e.complexity.RecentTopic.LastReplyAt(childComplexity), true
-
-	case "RecentTopic.title":
-		if e.complexity.RecentTopic.Title == nil {
-			break
-		}
-
-		return e.complexity.RecentTopic.Title(childComplexity), true
 
 	case "Reply.author":
 		if e.complexity.Reply.Author == nil {
@@ -303,6 +371,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Reply.Ups(childComplexity), true
+
+	case "ReplyForMessage.content":
+		if e.complexity.ReplyForMessage.Content == nil {
+			break
+		}
+
+		return e.complexity.ReplyForMessage.Content(childComplexity), true
+
+	case "ReplyForMessage.create_at":
+		if e.complexity.ReplyForMessage.CreateAt == nil {
+			break
+		}
+
+		return e.complexity.ReplyForMessage.CreateAt(childComplexity), true
+
+	case "ReplyForMessage.id":
+		if e.complexity.ReplyForMessage.ID == nil {
+			break
+		}
+
+		return e.complexity.ReplyForMessage.ID(childComplexity), true
+
+	case "ReplyForMessage.ups":
+		if e.complexity.ReplyForMessage.Ups == nil {
+			break
+		}
+
+		return e.complexity.ReplyForMessage.Ups(childComplexity), true
+
+	case "ReplyRecent.author":
+		if e.complexity.ReplyRecent.Author == nil {
+			break
+		}
+
+		return e.complexity.ReplyRecent.Author(childComplexity), true
+
+	case "ReplyRecent.id":
+		if e.complexity.ReplyRecent.ID == nil {
+			break
+		}
+
+		return e.complexity.ReplyRecent.ID(childComplexity), true
+
+	case "ReplyRecent.last_reply_at":
+		if e.complexity.ReplyRecent.LastReplyAt == nil {
+			break
+		}
+
+		return e.complexity.ReplyRecent.LastReplyAt(childComplexity), true
+
+	case "ReplyRecent.title":
+		if e.complexity.ReplyRecent.Title == nil {
+			break
+		}
+
+		return e.complexity.ReplyRecent.Title(childComplexity), true
 
 	case "Topic.author":
 		if e.complexity.Topic.Author == nil {
@@ -493,19 +617,61 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicDetail.VisitCount(childComplexity), true
 
+	case "TopicForMessage.id":
+		if e.complexity.TopicForMessage.ID == nil {
+			break
+		}
+
+		return e.complexity.TopicForMessage.ID(childComplexity), true
+
+	case "TopicForMessage.last_reply_at":
+		if e.complexity.TopicForMessage.LastReplyAt == nil {
+			break
+		}
+
+		return e.complexity.TopicForMessage.LastReplyAt(childComplexity), true
+
+	case "TopicForMessage.title":
+		if e.complexity.TopicForMessage.Title == nil {
+			break
+		}
+
+		return e.complexity.TopicForMessage.Title(childComplexity), true
+
+	case "TopicRecent.author":
+		if e.complexity.TopicRecent.Author == nil {
+			break
+		}
+
+		return e.complexity.TopicRecent.Author(childComplexity), true
+
+	case "TopicRecent.id":
+		if e.complexity.TopicRecent.ID == nil {
+			break
+		}
+
+		return e.complexity.TopicRecent.ID(childComplexity), true
+
+	case "TopicRecent.last_reply_at":
+		if e.complexity.TopicRecent.LastReplyAt == nil {
+			break
+		}
+
+		return e.complexity.TopicRecent.LastReplyAt(childComplexity), true
+
+	case "TopicRecent.title":
+		if e.complexity.TopicRecent.Title == nil {
+			break
+		}
+
+		return e.complexity.TopicRecent.Title(childComplexity), true
+
 	case "User.avatar_url":
 		if e.complexity.User.AvatarURL == nil {
 			break
 		}
 
 		return e.complexity.User.AvatarURL(childComplexity), true
-
-	case "User.id":
-		if e.complexity.User.ID == nil {
-			break
-		}
-
-		return e.complexity.User.ID(childComplexity), true
 
 	case "User.loginname":
 		if e.complexity.User.Loginname == nil {
@@ -562,6 +728,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UserDetail.Score(childComplexity), true
+
+	case "UserEntity.avatar_url":
+		if e.complexity.UserEntity.AvatarURL == nil {
+			break
+		}
+
+		return e.complexity.UserEntity.AvatarURL(childComplexity), true
+
+	case "UserEntity.id":
+		if e.complexity.UserEntity.ID == nil {
+			break
+		}
+
+		return e.complexity.UserEntity.ID(childComplexity), true
+
+	case "UserEntity.loginname":
+		if e.complexity.UserEntity.Loginname == nil {
+			break
+		}
+
+		return e.complexity.UserEntity.Loginname(childComplexity), true
 
 	}
 	return 0, false
@@ -627,6 +814,20 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
+	&ast.Source{Name: "graph/schema/message.graphql", Input: `type Message {
+  id: ID!
+  type: String
+  has_read: Boolean
+  create_at: String
+  reply: ReplyForMessage
+  topic: TopicForMessage
+  author: User 
+}
+
+type MessagesResponse {
+  has_read_messages: [Message]!
+  hasnot_read_messages: [Message]!
+}`, BuiltIn: false},
 	&ast.Source{Name: "graph/schema/reply.graphql", Input: `type Reply { 
   id: ID!
   content: String
@@ -637,7 +838,14 @@ var sources = []*ast.Source{
   author: User 
 }
 
-type RecentReply { 
+type ReplyForMessage { 
+  id: String
+  content: String
+  create_at: String
+  ups: [ID]!
+}
+
+type ReplyRecent { 
   id: ID!
   title: String
   last_reply_at: String
@@ -649,10 +857,12 @@ type RecentReply {
   topics(params: TopicsRequestParams!): [Topic]!
   topic(params: TopicRequestParams!): TopicDetail
   user(loginname: String!): UserDetail
+  messages(accesstoken: String!, mdrender: String = "true"): MessagesResponse
+  unreadMessage(accesstoken: String!): Int!
 }
 
 type Mutation {
-  validateAccessToken(accesstoken: String!): User
+  validateAccessToken(accesstoken: String!): UserEntity
 }`, BuiltIn: false},
 	&ast.Source{Name: "graph/schema/topic.graphql", Input: `type Topic {
   id: ID!
@@ -687,11 +897,17 @@ type TopicDetail {
   author: User
 }
 
-type RecentTopic { 
+type TopicRecent { 
   id: ID!
   title: String
   last_reply_at: String
   author: User 
+}
+
+type TopicForMessage {
+  id: ID! 
+  title: String! 
+  last_reply_at: String
 }
 
 enum TopicTab {
@@ -714,10 +930,15 @@ input TopicRequestParams {
   mdrender: String = "true"
 }
 `, BuiltIn: false},
-	&ast.Source{Name: "graph/schema/user.graphql", Input: `type User {
-  id: ID! 
+	&ast.Source{Name: "graph/schema/user.graphql", Input: `type User { 
   loginname: String 
   avatar_url: String 
+}
+
+type UserEntity {
+  id: ID!
+  loginname: String 
+  avatar_url: String
 }
 
 type UserDetail { 
@@ -726,8 +947,8 @@ type UserDetail {
   githubUsername: String
   create_at: String
   score: Int
-  recent_replies: [RecentReply]
-  recent_topics: [RecentTopic] 
+  recent_replies: [ReplyRecent]
+  recent_topics: [TopicRecent] 
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -764,6 +985,28 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_messages_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["accesstoken"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["accesstoken"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["mdrender"]; ok {
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["mdrender"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_topic_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -789,6 +1032,20 @@ func (ec *executionContext) field_Query_topics_args(ctx context.Context, rawArgs
 		}
 	}
 	args["params"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_unreadMessage_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["accesstoken"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["accesstoken"] = arg0
 	return args, nil
 }
 
@@ -842,6 +1099,294 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _Message_id(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Message",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Message_type(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Message",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Message_has_read(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Message",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HasRead, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Message_create_at(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Message",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreateAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Message_reply(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Message",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Reply, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.ReplyForMessage)
+	fc.Result = res
+	return ec.marshalOReplyForMessage2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐReplyForMessage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Message_topic(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Message",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Topic, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.TopicForMessage)
+	fc.Result = res
+	return ec.marshalOTopicForMessage2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicForMessage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Message_author(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Message",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Author, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _MessagesResponse_has_read_messages(ctx context.Context, field graphql.CollectedField, obj *model.MessagesResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "MessagesResponse",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HasReadMessages, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Message)
+	fc.Result = res
+	return ec.marshalNMessage2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _MessagesResponse_hasnot_read_messages(ctx context.Context, field graphql.CollectedField, obj *model.MessagesResponse) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "MessagesResponse",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.HasnotReadMessages, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Message)
+	fc.Result = res
+	return ec.marshalNMessage2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessage(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_validateAccessToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -875,9 +1420,9 @@ func (ec *executionContext) _Mutation_validateAccessToken(ctx context.Context, f
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(*model.UserEntity)
 	fc.Result = res
-	return ec.marshalOUser2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalOUserEntity2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUserEntity(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_topics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -997,6 +1542,85 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	return ec.marshalOUserDetail2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUserDetail(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_messages(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_messages_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Messages(rctx, args["accesstoken"].(string), args["mdrender"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.MessagesResponse)
+	fc.Result = res
+	return ec.marshalOMessagesResponse2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessagesResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_unreadMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_unreadMessage_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().UnreadMessage(rctx, args["accesstoken"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1064,260 +1688,6 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _RecentReply_id(ctx context.Context, field graphql.CollectedField, obj *model.RecentReply) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "RecentReply",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _RecentReply_title(ctx context.Context, field graphql.CollectedField, obj *model.RecentReply) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "RecentReply",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _RecentReply_last_reply_at(ctx context.Context, field graphql.CollectedField, obj *model.RecentReply) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "RecentReply",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.LastReplyAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _RecentReply_author(ctx context.Context, field graphql.CollectedField, obj *model.RecentReply) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "RecentReply",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Author, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.User)
-	fc.Result = res
-	return ec.marshalOUser2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _RecentTopic_id(ctx context.Context, field graphql.CollectedField, obj *model.RecentTopic) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "RecentTopic",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _RecentTopic_title(ctx context.Context, field graphql.CollectedField, obj *model.RecentTopic) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "RecentTopic",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _RecentTopic_last_reply_at(ctx context.Context, field graphql.CollectedField, obj *model.RecentTopic) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "RecentTopic",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.LastReplyAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _RecentTopic_author(ctx context.Context, field graphql.CollectedField, obj *model.RecentTopic) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:   "RecentTopic",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Author, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*model.User)
-	fc.Result = res
-	return ec.marshalOUser2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Reply_id(ctx context.Context, field graphql.CollectedField, obj *model.Reply) (ret graphql.Marshaler) {
@@ -1521,6 +1891,260 @@ func (ec *executionContext) _Reply_author(ctx context.Context, field graphql.Col
 	}()
 	fc := &graphql.FieldContext{
 		Object:   "Reply",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Author, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ReplyForMessage_id(ctx context.Context, field graphql.CollectedField, obj *model.ReplyForMessage) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "ReplyForMessage",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ReplyForMessage_content(ctx context.Context, field graphql.CollectedField, obj *model.ReplyForMessage) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "ReplyForMessage",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Content, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ReplyForMessage_create_at(ctx context.Context, field graphql.CollectedField, obj *model.ReplyForMessage) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "ReplyForMessage",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreateAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ReplyForMessage_ups(ctx context.Context, field graphql.CollectedField, obj *model.ReplyForMessage) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "ReplyForMessage",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Ups, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*string)
+	fc.Result = res
+	return ec.marshalNID2ᚕᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ReplyRecent_id(ctx context.Context, field graphql.CollectedField, obj *model.ReplyRecent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "ReplyRecent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ReplyRecent_title(ctx context.Context, field graphql.CollectedField, obj *model.ReplyRecent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "ReplyRecent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ReplyRecent_last_reply_at(ctx context.Context, field graphql.CollectedField, obj *model.ReplyRecent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "ReplyRecent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastReplyAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ReplyRecent_author(ctx context.Context, field graphql.CollectedField, obj *model.ReplyRecent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "ReplyRecent",
 		Field:    field,
 		Args:     nil,
 		IsMethod: false,
@@ -2398,7 +3022,7 @@ func (ec *executionContext) _TopicDetail_author(ctx context.Context, field graph
 	return ec.marshalOUser2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _TopicForMessage_id(ctx context.Context, field graphql.CollectedField, obj *model.TopicForMessage) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2406,7 +3030,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 		}
 	}()
 	fc := &graphql.FieldContext{
-		Object:   "User",
+		Object:   "TopicForMessage",
 		Field:    field,
 		Args:     nil,
 		IsMethod: false,
@@ -2430,6 +3054,198 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TopicForMessage_title(ctx context.Context, field graphql.CollectedField, obj *model.TopicForMessage) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "TopicForMessage",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TopicForMessage_last_reply_at(ctx context.Context, field graphql.CollectedField, obj *model.TopicForMessage) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "TopicForMessage",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastReplyAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TopicRecent_id(ctx context.Context, field graphql.CollectedField, obj *model.TopicRecent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "TopicRecent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TopicRecent_title(ctx context.Context, field graphql.CollectedField, obj *model.TopicRecent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "TopicRecent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TopicRecent_last_reply_at(ctx context.Context, field graphql.CollectedField, obj *model.TopicRecent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "TopicRecent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastReplyAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TopicRecent_author(ctx context.Context, field graphql.CollectedField, obj *model.TopicRecent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "TopicRecent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Author, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_loginname(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -2675,9 +3491,9 @@ func (ec *executionContext) _UserDetail_recent_replies(ctx context.Context, fiel
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.RecentReply)
+	res := resTmp.([]*model.ReplyRecent)
 	fc.Result = res
-	return ec.marshalORecentReply2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐRecentReply(ctx, field.Selections, res)
+	return ec.marshalOReplyRecent2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐReplyRecent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _UserDetail_recent_topics(ctx context.Context, field graphql.CollectedField, obj *model.UserDetail) (ret graphql.Marshaler) {
@@ -2706,9 +3522,105 @@ func (ec *executionContext) _UserDetail_recent_topics(ctx context.Context, field
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.RecentTopic)
+	res := resTmp.([]*model.TopicRecent)
 	fc.Result = res
-	return ec.marshalORecentTopic2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐRecentTopic(ctx, field.Selections, res)
+	return ec.marshalOTopicRecent2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicRecent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UserEntity_id(ctx context.Context, field graphql.CollectedField, obj *model.UserEntity) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "UserEntity",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UserEntity_loginname(ctx context.Context, field graphql.CollectedField, obj *model.UserEntity) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "UserEntity",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Loginname, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UserEntity_avatar_url(ctx context.Context, field graphql.CollectedField, obj *model.UserEntity) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "UserEntity",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AvatarURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -3854,6 +4766,77 @@ func (ec *executionContext) unmarshalInputTopicsRequestParams(ctx context.Contex
 
 // region    **************************** object.gotpl ****************************
 
+var messageImplementors = []string{"Message"}
+
+func (ec *executionContext) _Message(ctx context.Context, sel ast.SelectionSet, obj *model.Message) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, messageImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Message")
+		case "id":
+			out.Values[i] = ec._Message_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "type":
+			out.Values[i] = ec._Message_type(ctx, field, obj)
+		case "has_read":
+			out.Values[i] = ec._Message_has_read(ctx, field, obj)
+		case "create_at":
+			out.Values[i] = ec._Message_create_at(ctx, field, obj)
+		case "reply":
+			out.Values[i] = ec._Message_reply(ctx, field, obj)
+		case "topic":
+			out.Values[i] = ec._Message_topic(ctx, field, obj)
+		case "author":
+			out.Values[i] = ec._Message_author(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var messagesResponseImplementors = []string{"MessagesResponse"}
+
+func (ec *executionContext) _MessagesResponse(ctx context.Context, sel ast.SelectionSet, obj *model.MessagesResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, messagesResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MessagesResponse")
+		case "has_read_messages":
+			out.Values[i] = ec._MessagesResponse_has_read_messages(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "hasnot_read_messages":
+			out.Values[i] = ec._MessagesResponse_hasnot_read_messages(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3933,76 +4916,35 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				res = ec._Query_user(ctx, field)
 				return res
 			})
+		case "messages":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_messages(ctx, field)
+				return res
+			})
+		case "unreadMessage":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_unreadMessage(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var recentReplyImplementors = []string{"RecentReply"}
-
-func (ec *executionContext) _RecentReply(ctx context.Context, sel ast.SelectionSet, obj *model.RecentReply) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, recentReplyImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("RecentReply")
-		case "id":
-			out.Values[i] = ec._RecentReply_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "title":
-			out.Values[i] = ec._RecentReply_title(ctx, field, obj)
-		case "last_reply_at":
-			out.Values[i] = ec._RecentReply_last_reply_at(ctx, field, obj)
-		case "author":
-			out.Values[i] = ec._RecentReply_author(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var recentTopicImplementors = []string{"RecentTopic"}
-
-func (ec *executionContext) _RecentTopic(ctx context.Context, sel ast.SelectionSet, obj *model.RecentTopic) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, recentTopicImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("RecentTopic")
-		case "id":
-			out.Values[i] = ec._RecentTopic_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "title":
-			out.Values[i] = ec._RecentTopic_title(ctx, field, obj)
-		case "last_reply_at":
-			out.Values[i] = ec._RecentTopic_last_reply_at(ctx, field, obj)
-		case "author":
-			out.Values[i] = ec._RecentTopic_author(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4045,6 +4987,72 @@ func (ec *executionContext) _Reply(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "author":
 			out.Values[i] = ec._Reply_author(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var replyForMessageImplementors = []string{"ReplyForMessage"}
+
+func (ec *executionContext) _ReplyForMessage(ctx context.Context, sel ast.SelectionSet, obj *model.ReplyForMessage) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, replyForMessageImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ReplyForMessage")
+		case "id":
+			out.Values[i] = ec._ReplyForMessage_id(ctx, field, obj)
+		case "content":
+			out.Values[i] = ec._ReplyForMessage_content(ctx, field, obj)
+		case "create_at":
+			out.Values[i] = ec._ReplyForMessage_create_at(ctx, field, obj)
+		case "ups":
+			out.Values[i] = ec._ReplyForMessage_ups(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var replyRecentImplementors = []string{"ReplyRecent"}
+
+func (ec *executionContext) _ReplyRecent(ctx context.Context, sel ast.SelectionSet, obj *model.ReplyRecent) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, replyRecentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ReplyRecent")
+		case "id":
+			out.Values[i] = ec._ReplyRecent_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+			out.Values[i] = ec._ReplyRecent_title(ctx, field, obj)
+		case "last_reply_at":
+			out.Values[i] = ec._ReplyRecent_last_reply_at(ctx, field, obj)
+		case "author":
+			out.Values[i] = ec._ReplyRecent_author(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4172,6 +5180,73 @@ func (ec *executionContext) _TopicDetail(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
+var topicForMessageImplementors = []string{"TopicForMessage"}
+
+func (ec *executionContext) _TopicForMessage(ctx context.Context, sel ast.SelectionSet, obj *model.TopicForMessage) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, topicForMessageImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TopicForMessage")
+		case "id":
+			out.Values[i] = ec._TopicForMessage_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+			out.Values[i] = ec._TopicForMessage_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "last_reply_at":
+			out.Values[i] = ec._TopicForMessage_last_reply_at(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var topicRecentImplementors = []string{"TopicRecent"}
+
+func (ec *executionContext) _TopicRecent(ctx context.Context, sel ast.SelectionSet, obj *model.TopicRecent) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, topicRecentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TopicRecent")
+		case "id":
+			out.Values[i] = ec._TopicRecent_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "title":
+			out.Values[i] = ec._TopicRecent_title(ctx, field, obj)
+		case "last_reply_at":
+			out.Values[i] = ec._TopicRecent_last_reply_at(ctx, field, obj)
+		case "author":
+			out.Values[i] = ec._TopicRecent_author(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var userImplementors = []string{"User"}
 
 func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
@@ -4183,11 +5258,6 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("User")
-		case "id":
-			out.Values[i] = ec._User_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "loginname":
 			out.Values[i] = ec._User_loginname(ctx, field, obj)
 		case "avatar_url":
@@ -4228,6 +5298,37 @@ func (ec *executionContext) _UserDetail(ctx context.Context, sel ast.SelectionSe
 			out.Values[i] = ec._UserDetail_recent_replies(ctx, field, obj)
 		case "recent_topics":
 			out.Values[i] = ec._UserDetail_recent_topics(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var userEntityImplementors = []string{"UserEntity"}
+
+func (ec *executionContext) _UserEntity(ctx context.Context, sel ast.SelectionSet, obj *model.UserEntity) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userEntityImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserEntity")
+		case "id":
+			out.Values[i] = ec._UserEntity_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "loginname":
+			out.Values[i] = ec._UserEntity_loginname(ctx, field, obj)
+		case "avatar_url":
+			out.Values[i] = ec._UserEntity_avatar_url(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4538,6 +5639,57 @@ func (ec *executionContext) marshalNID2ᚕᚖstring(ctx context.Context, sel ast
 		ret[i] = ec.marshalOID2ᚖstring(ctx, sel, v[i])
 	}
 
+	return ret
+}
+
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	return graphql.UnmarshalInt(v)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) marshalNMessage2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v []*model.Message) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMessage2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessage(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
 	return ret
 }
 
@@ -4895,106 +6047,26 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return ec.marshalOInt2int(ctx, sel, *v)
 }
 
-func (ec *executionContext) marshalORecentReply2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐRecentReply(ctx context.Context, sel ast.SelectionSet, v model.RecentReply) graphql.Marshaler {
-	return ec._RecentReply(ctx, sel, &v)
+func (ec *executionContext) marshalOMessage2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v model.Message) graphql.Marshaler {
+	return ec._Message(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalORecentReply2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐRecentReply(ctx context.Context, sel ast.SelectionSet, v []*model.RecentReply) graphql.Marshaler {
+func (ec *executionContext) marshalOMessage2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v *model.Message) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalORecentReply2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐRecentReply(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
+	return ec._Message(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalORecentReply2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐRecentReply(ctx context.Context, sel ast.SelectionSet, v *model.RecentReply) graphql.Marshaler {
+func (ec *executionContext) marshalOMessagesResponse2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessagesResponse(ctx context.Context, sel ast.SelectionSet, v model.MessagesResponse) graphql.Marshaler {
+	return ec._MessagesResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOMessagesResponse2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessagesResponse(ctx context.Context, sel ast.SelectionSet, v *model.MessagesResponse) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._RecentReply(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalORecentTopic2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐRecentTopic(ctx context.Context, sel ast.SelectionSet, v model.RecentTopic) graphql.Marshaler {
-	return ec._RecentTopic(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalORecentTopic2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐRecentTopic(ctx context.Context, sel ast.SelectionSet, v []*model.RecentTopic) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalORecentTopic2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐRecentTopic(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
-func (ec *executionContext) marshalORecentTopic2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐRecentTopic(ctx context.Context, sel ast.SelectionSet, v *model.RecentTopic) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._RecentTopic(ctx, sel, v)
+	return ec._MessagesResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOReply2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐReply(ctx context.Context, sel ast.SelectionSet, v model.Reply) graphql.Marshaler {
@@ -5048,6 +6120,68 @@ func (ec *executionContext) marshalOReply2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑc
 	return ec._Reply(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOReplyForMessage2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐReplyForMessage(ctx context.Context, sel ast.SelectionSet, v model.ReplyForMessage) graphql.Marshaler {
+	return ec._ReplyForMessage(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOReplyForMessage2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐReplyForMessage(ctx context.Context, sel ast.SelectionSet, v *model.ReplyForMessage) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ReplyForMessage(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOReplyRecent2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐReplyRecent(ctx context.Context, sel ast.SelectionSet, v model.ReplyRecent) graphql.Marshaler {
+	return ec._ReplyRecent(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOReplyRecent2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐReplyRecent(ctx context.Context, sel ast.SelectionSet, v []*model.ReplyRecent) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOReplyRecent2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐReplyRecent(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalOReplyRecent2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐReplyRecent(ctx context.Context, sel ast.SelectionSet, v *model.ReplyRecent) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ReplyRecent(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalString(v)
 }
@@ -5091,6 +6225,68 @@ func (ec *executionContext) marshalOTopicDetail2ᚖgithubᚗcomᚋmrdulinᚋgqlg
 		return graphql.Null
 	}
 	return ec._TopicDetail(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTopicForMessage2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicForMessage(ctx context.Context, sel ast.SelectionSet, v model.TopicForMessage) graphql.Marshaler {
+	return ec._TopicForMessage(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOTopicForMessage2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicForMessage(ctx context.Context, sel ast.SelectionSet, v *model.TopicForMessage) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TopicForMessage(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTopicRecent2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicRecent(ctx context.Context, sel ast.SelectionSet, v model.TopicRecent) graphql.Marshaler {
+	return ec._TopicRecent(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOTopicRecent2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicRecent(ctx context.Context, sel ast.SelectionSet, v []*model.TopicRecent) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOTopicRecent2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicRecent(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalOTopicRecent2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicRecent(ctx context.Context, sel ast.SelectionSet, v *model.TopicRecent) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TopicRecent(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOTopicTab2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicTab(ctx context.Context, v interface{}) (model.TopicTab, error) {
@@ -5137,6 +6333,17 @@ func (ec *executionContext) marshalOUserDetail2ᚖgithubᚗcomᚋmrdulinᚋgqlge
 		return graphql.Null
 	}
 	return ec._UserDetail(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOUserEntity2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUserEntity(ctx context.Context, sel ast.SelectionSet, v model.UserEntity) graphql.Marshaler {
+	return ec._UserEntity(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOUserEntity2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUserEntity(ctx context.Context, sel ast.SelectionSet, v *model.UserEntity) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UserEntity(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

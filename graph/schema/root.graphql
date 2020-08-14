@@ -2,8 +2,10 @@ type Query {
   topics(params: TopicsRequestParams!): [Topic]!
   topic(params: TopicRequestParams!): TopicDetail
   user(loginname: String!): UserDetail
+  messages(accesstoken: String!, mdrender: String = "true"): MessagesResponse
+  unreadMessage(accesstoken: String!): Int!
 }
 
 type Mutation {
-  validateAccessToken(accesstoken: String!): User
+  validateAccessToken(accesstoken: String!): UserEntity
 }

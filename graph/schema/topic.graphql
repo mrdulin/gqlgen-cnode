@@ -31,11 +31,17 @@ type TopicDetail {
   author: User
 }
 
-type RecentTopic { 
+type TopicRecent { 
   id: ID!
   title: String
   last_reply_at: String
   author: User 
+}
+
+type TopicForMessage {
+  id: ID! 
+  title: String! 
+  last_reply_at: String
 }
 
 enum TopicTab {

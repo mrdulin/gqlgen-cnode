@@ -8,18 +8,19 @@ import (
 	"strconv"
 )
 
-type RecentReply struct {
-	ID          string  `json:"id"`
-	Title       *string `json:"title"`
-	LastReplyAt *string `json:"last_reply_at"`
-	Author      *User   `json:"author"`
+type Message struct {
+	ID       string           `json:"id"`
+	Type     *string          `json:"type"`
+	HasRead  *bool            `json:"has_read"`
+	CreateAt *string          `json:"create_at"`
+	Reply    *ReplyForMessage `json:"reply"`
+	Topic    *TopicForMessage `json:"topic"`
+	Author   *User            `json:"author"`
 }
 
-type RecentTopic struct {
-	ID          string  `json:"id"`
-	Title       *string `json:"title"`
-	LastReplyAt *string `json:"last_reply_at"`
-	Author      *User   `json:"author"`
+type MessagesResponse struct {
+	HasReadMessages    []*Message `json:"has_read_messages"`
+	HasnotReadMessages []*Message `json:"hasnot_read_messages"`
 }
 
 type Reply struct {
@@ -30,6 +31,20 @@ type Reply struct {
 	IsUped   *bool     `json:"is_uped"`
 	Ups      []*string `json:"ups"`
 	Author   *User     `json:"author"`
+}
+
+type ReplyForMessage struct {
+	ID       *string   `json:"id"`
+	Content  *string   `json:"content"`
+	CreateAt *string   `json:"create_at"`
+	Ups      []*string `json:"ups"`
+}
+
+type ReplyRecent struct {
+	ID          string  `json:"id"`
+	Title       *string `json:"title"`
+	LastReplyAt *string `json:"last_reply_at"`
+	Author      *User   `json:"author"`
 }
 
 type Topic struct {
@@ -65,6 +80,19 @@ type TopicDetail struct {
 	Author      *User    `json:"author"`
 }
 
+type TopicForMessage struct {
+	ID          string  `json:"id"`
+	Title       string  `json:"title"`
+	LastReplyAt *string `json:"last_reply_at"`
+}
+
+type TopicRecent struct {
+	ID          string  `json:"id"`
+	Title       *string `json:"title"`
+	LastReplyAt *string `json:"last_reply_at"`
+	Author      *User   `json:"author"`
+}
+
 type TopicRequestParams struct {
 	ID          string  `json:"id" url:"id,omitempty"`
 	Accesstoken *string `json:"accesstoken" url:"accesstoken,omitempty"`
@@ -79,7 +107,6 @@ type TopicsRequestParams struct {
 }
 
 type User struct {
-	ID        string  `json:"id"`
 	Loginname *string `json:"loginname"`
 	AvatarURL *string `json:"avatar_url"`
 }
@@ -90,8 +117,14 @@ type UserDetail struct {
 	GithubUsername *string        `json:"githubUsername"`
 	CreateAt       *string        `json:"create_at"`
 	Score          *int           `json:"score"`
-	RecentReplies  []*RecentReply `json:"recent_replies"`
-	RecentTopics   []*RecentTopic `json:"recent_topics"`
+	RecentReplies  []*ReplyRecent `json:"recent_replies"`
+	RecentTopics   []*TopicRecent `json:"recent_topics"`
+}
+
+type UserEntity struct {
+	ID        string  `json:"id"`
+	Loginname *string `json:"loginname"`
+	AvatarURL *string `json:"avatar_url"`
 }
 
 type TopicTab string
