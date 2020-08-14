@@ -94,41 +94,46 @@ func (h *httpClient) Decode(body io.ReadCloser, res interface{}) error {
 }
 
 func (h *httpClient) Unmarshal(res interface{}, data interface{}) error {
+	var (
+		bs  []byte
+		err error
+	)
 	switch v := res.(type) {
 	case Response:
-		err := json.Unmarshal(v.Data, &data)
-		if err != nil {
-			return errors.Wrapf(err, "json.Unmarshal. data: %s", string(v.Data))
-		}
+		bs = v.Data
 	case ResponseMap:
 		var r interface{}
 		if v["data"] != nil {
 			r = v["data"]
 		}
 		r = v
-		bs, err := json.Marshal(r)
+		bs, err = json.Marshal(r)
 		if err != nil {
 			return errors.Wrapf(err, "json.Marshal(r). v: %+v", r)
 		}
-		err = json.Unmarshal(bs, &data)
-		if err != nil {
-			return errors.Wrapf(err, "json.Unmarshal. data: %s", string(bs))
-		}
 	}
-
+	err = json.Unmarshal(bs, &data)
+	if err != nil {
+		return errors.Wrapf(err, "json.Unmarshal. data: %s", string(bs))
+	}
 	return nil
 }
 
 func (h *httpClient) HandleAPIError(res interface{}) error {
+	var (
+		success      bool
+		errorMessage string
+	)
 	switch v := res.(type) {
 	case Response:
-		if !v.Success {
-			return fmt.Errorf("API error: %s", v.ErrorMessage)
-		}
+		success = v.Success
+		errorMessage = v.ErrorMessage
 	case ResponseMap:
-		if v["success"] == false {
-			return fmt.Errorf("API error: %s", v["error_msg"])
-		}
+		success = v["success"].(bool)
+		errorMessage = v["error_msg"].(string)
+	}
+	if !success {
+		return fmt.Errorf("API error: %s", errorMessage)
 	}
 	return nil
 }
