@@ -4,31 +4,38 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/google/go-querystring/query"
+
 	"github.com/mrdulin/gqlgen-cnode/graph/model"
-	"github.com/mrdulin/gqlgen-cnode/utils"
+	"github.com/mrdulin/gqlgen-cnode/utils/httpClient"
 )
 
 type topicService struct {
-	HttpClient utils.IHttpClient
+	HttpClient httpClient.HttpClient
 	BaseURL    string
 }
 
 type TopicService interface {
-	GetTopicsByPage(urlValues *url.Values) []*model.Topic
+	GetTopicsByPage(params model.TopicsRequestParams) []*model.Topic
 	GetTopicById(id string) *model.TopicDetail
 }
 
-func NewTopicService(httpClient utils.IHttpClient, BaseURL string) *topicService {
+func NewTopicService(httpClient httpClient.HttpClient, BaseURL string) *topicService {
 	return &topicService{HttpClient: httpClient, BaseURL: BaseURL}
 }
-func (t *topicService) GetTopicsByPage(urlValues *url.Values) []*model.Topic {
+func (t *topicService) GetTopicsByPage(params model.TopicsRequestParams) []*model.Topic {
 	base, err := url.Parse(t.BaseURL + "/topics")
 	var res []*model.Topic
 	if err != nil {
 		fmt.Println("Get topics by page error: parse url.", err)
 		return res
 	}
-	base.RawQuery = urlValues.Encode()
+	v, err := query.Values(params)
+	if err != nil {
+		fmt.Printf("query.Values(params) error. params: %+v, error: %s", params, err)
+		return res
+	}
+	base.RawQuery = v.Encode()
 	err = t.HttpClient.Get(base.String(), &res)
 	if err != nil {
 		fmt.Println(err)

@@ -1,4 +1,4 @@
 type Query {
-  topics(limit: String, page: String): [Topic]!
+  topics(params: TopicsRequestParams!): [Topic]!
   topic(id: ID!): TopicDetail
 }

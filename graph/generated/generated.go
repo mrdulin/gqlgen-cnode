@@ -44,7 +44,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Query struct {
 		Topic  func(childComplexity int, id string) int
-		Topics func(childComplexity int, limit *string, page *string) int
+		Topics func(childComplexity int, params model.TopicsRequestParams) int
 	}
 
 	RecentReply struct {
@@ -121,7 +121,7 @@ type ComplexityRoot struct {
 }
 
 type QueryResolver interface {
-	Topics(ctx context.Context, limit *string, page *string) ([]*model.Topic, error)
+	Topics(ctx context.Context, params model.TopicsRequestParams) ([]*model.Topic, error)
 	Topic(ctx context.Context, id string) (*model.TopicDetail, error)
 }
 
@@ -162,7 +162,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Topics(childComplexity, args["limit"].(*string), args["page"].(*string)), true
+		return e.complexity.Query.Topics(childComplexity, args["params"].(model.TopicsRequestParams)), true
 
 	case "RecentReply.author":
 		if e.complexity.RecentReply.Author == nil {
@@ -590,7 +590,7 @@ type RecentReply {
 
 `, BuiltIn: false},
 	&ast.Source{Name: "graph/schema/root.graphql", Input: `type Query {
-  topics(limit: String, page: String): [Topic]!
+  topics(params: TopicsRequestParams!): [Topic]!
   topic(id: ID!): TopicDetail
 }
 `, BuiltIn: false},
@@ -632,6 +632,13 @@ type RecentTopic {
   title: String
   last_reply_at: String
   author: User 
+}
+
+input TopicsRequestParams {
+  page: Int = 0
+  tab: String
+  limit: Int = 10
+  mdrender: String = "true"
 }`, BuiltIn: false},
 	&ast.Source{Name: "graph/schema/user.graphql", Input: `type User { 
   loginname: String 
@@ -685,22 +692,14 @@ func (ec *executionContext) field_Query_topic_args(ctx context.Context, rawArgs 
 func (ec *executionContext) field_Query_topics_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["limit"]; ok {
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+	var arg0 model.TopicsRequestParams
+	if tmp, ok := rawArgs["params"]; ok {
+		arg0, err = ec.unmarshalNTopicsRequestParams2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicsRequestParams(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["limit"] = arg0
-	var arg1 *string
-	if tmp, ok := rawArgs["page"]; ok {
-		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["page"] = arg1
+	args["params"] = arg0
 	return args, nil
 }
 
@@ -764,7 +763,7 @@ func (ec *executionContext) _Query_topics(ctx context.Context, field graphql.Col
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Topics(rctx, args["limit"].(*string), args["page"].(*string))
+		return ec.resolvers.Query().Topics(rctx, args["params"].(model.TopicsRequestParams))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3554,6 +3553,49 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputTopicsRequestParams(ctx context.Context, obj interface{}) (model.TopicsRequestParams, error) {
+	var it model.TopicsRequestParams
+	var asMap = obj.(map[string]interface{})
+
+	if _, present := asMap["limit"]; !present {
+		asMap["limit"] = 10
+	}
+	if _, present := asMap["mdrender"]; !present {
+		asMap["mdrender"] = "true"
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "page":
+			var err error
+			it.Page, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "tab":
+			var err error
+			it.Tab, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "limit":
+			var err error
+			it.Limit, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "mdrender":
+			var err error
+			it.Mdrender, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4254,6 +4296,10 @@ func (ec *executionContext) marshalNTopic2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgen�
 	}
 	wg.Wait()
 	return ret
+}
+
+func (ec *executionContext) unmarshalNTopicsRequestParams2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicsRequestParams(ctx context.Context, v interface{}) (model.TopicsRequestParams, error) {
+	return ec.unmarshalInputTopicsRequestParams(ctx, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

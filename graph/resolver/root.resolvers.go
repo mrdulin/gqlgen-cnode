@@ -5,17 +5,13 @@ package resolver
 
 import (
 	"context"
-	"net/url"
 
 	"github.com/mrdulin/gqlgen-cnode/graph/generated"
 	"github.com/mrdulin/gqlgen-cnode/graph/model"
 )
 
-func (r *queryResolver) Topics(ctx context.Context, limit *string, page *string) ([]*model.Topic, error) {
-	urlValues := url.Values{}
-	urlValues.Add("limit", *limit)
-	urlValues.Add("page", *page)
-	return r.TopicService.GetTopicsByPage(&urlValues), nil
+func (r *queryResolver) Topics(ctx context.Context, params model.TopicsRequestParams) ([]*model.Topic, error) {
+	return r.TopicService.GetTopicsByPage(params), nil
 }
 
 func (r *queryResolver) Topic(ctx context.Context, id string) (*model.TopicDetail, error) {

@@ -59,6 +59,13 @@ type TopicDetail struct {
 	Author      *User    `json:"author"`
 }
 
+type TopicsRequestParams struct {
+	Page     *int    `json:"page" url:"page"`
+	Tab      *string `json:"tab" url:"tab"`
+	Limit    *int    `json:"limit" url:"limit"`
+	Mdrender *string `json:"mdrender" url:"mdrender"`
+}
+
 type User struct {
 	Loginname *string `json:"loginname"`
 	AvatarURL *string `json:"avatar_url"`

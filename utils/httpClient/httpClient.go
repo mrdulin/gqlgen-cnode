@@ -1,4 +1,4 @@
-package utils
+package httpClient
 
 import (
 	"bytes"
@@ -24,7 +24,7 @@ type Response struct {
 	ResponseData
 }
 
-type IHttpClient interface {
+type HttpClient interface {
 	Get(url string, data interface{}) error
 	Post(url string, body interface{}, data interface{}) error
 	HandleAPIError(res Response) error
@@ -32,11 +32,9 @@ type IHttpClient interface {
 	Unmarshal(byte []byte, data interface{}) error
 }
 
-type httpClient struct {
-	IHttpClient
-}
+type httpClient struct{}
 
-func NewHttpClient() *httpClient {
+func New() *httpClient {
 	return &httpClient{}
 }
 

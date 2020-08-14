@@ -37,3 +37,10 @@ type RecentTopic {
   last_reply_at: String
   author: User 
 }
+
+input TopicsRequestParams {
+  page: Int = 0
+  tab: String
+  limit: Int = 10
+  mdrender: String = "true"
+}
