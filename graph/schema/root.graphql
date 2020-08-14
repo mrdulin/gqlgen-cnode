@@ -1,4 +1,9 @@
 type Query {
   topics(params: TopicsRequestParams!): [Topic]!
-  topic(id: ID!): TopicDetail
+  topic(params: TopicRequestParams!): TopicDetail
+  user(loginname: String!): UserDetail
+}
+
+type Mutation {
+  validateAccessToken(accesstoken: String!): User
 }

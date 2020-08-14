@@ -2,6 +2,12 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type RecentReply struct {
 	ID          string  `json:"id"`
 	Title       *string `json:"title"`
@@ -59,14 +65,21 @@ type TopicDetail struct {
 	Author      *User    `json:"author"`
 }
 
+type TopicRequestParams struct {
+	ID          string  `json:"id" url:"id,omitempty"`
+	Accesstoken *string `json:"accesstoken" url:"accesstoken,omitempty"`
+	Mdrender    *string `json:"mdrender" url:"mdrender,omitempty"`
+}
+
 type TopicsRequestParams struct {
-	Page     *int    `json:"page" url:"page"`
-	Tab      *string `json:"tab" url:"tab"`
-	Limit    *int    `json:"limit" url:"limit"`
-	Mdrender *string `json:"mdrender" url:"mdrender"`
+	Page     *int      `json:"page" url:"page,omitempty"`
+	Tab      *TopicTab `json:"tab" url:"tab,omitempty"`
+	Limit    *int      `json:"limit" url:"limit,omitempty"`
+	Mdrender *string   `json:"mdrender" url:"mdrender,omitempty"`
 }
 
 type User struct {
+	ID        string  `json:"id"`
 	Loginname *string `json:"loginname"`
 	AvatarURL *string `json:"avatar_url"`
 }
@@ -79,4 +92,49 @@ type UserDetail struct {
 	Score          *int           `json:"score"`
 	RecentReplies  []*RecentReply `json:"recent_replies"`
 	RecentTopics   []*RecentTopic `json:"recent_topics"`
+}
+
+type TopicTab string
+
+const (
+	TopicTabAsk   TopicTab = "ask"
+	TopicTabShare TopicTab = "share"
+	TopicTabJob   TopicTab = "job"
+	TopicTabGood  TopicTab = "good"
+)
+
+var AllTopicTab = []TopicTab{
+	TopicTabAsk,
+	TopicTabShare,
+	TopicTabJob,
+	TopicTabGood,
+}
+
+func (e TopicTab) IsValid() bool {
+	switch e {
+	case TopicTabAsk, TopicTabShare, TopicTabJob, TopicTabGood:
+		return true
+	}
+	return false
+}
+
+func (e TopicTab) String() string {
+	return string(e)
+}
+
+func (e *TopicTab) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TopicTab(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TopicTab", str)
+	}
+	return nil
+}
+
+func (e TopicTab) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

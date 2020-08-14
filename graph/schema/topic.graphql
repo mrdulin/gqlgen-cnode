@@ -38,9 +38,22 @@ type RecentTopic {
   author: User 
 }
 
+enum TopicTab {
+  ask
+  share
+  job
+  good
+}
+
 input TopicsRequestParams {
-  page: Int = 0
-  tab: String
+  page: Int = 1
+  tab: TopicTab
   limit: Int = 10
+  mdrender: String = "true"
+}
+
+input TopicRequestParams {
+  id: ID!
+  accesstoken: String
   mdrender: String = "true"
 }

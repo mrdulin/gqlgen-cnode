@@ -1,4 +1,5 @@
-type User { 
+type User {
+  id: ID! 
   loginname: String 
   avatar_url: String 
 }

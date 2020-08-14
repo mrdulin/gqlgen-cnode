@@ -14,13 +14,11 @@ func mutateHook(b *modelgen.ModelBuild) *modelgen.ModelBuild {
 	for _, model := range b.Models {
 		if strings.Contains(strings.ToLower(model.Name), "params") {
 			for _, field := range model.Fields {
-				fmt.Printf("field: %s. tag: %s", field, field.Tag)
-				suffix := strings.Split(field.Tag, ":")[1]
-				queryTag := "url:" + suffix
+				tagFieldName := strings.ReplaceAll(strings.Split(field.Tag, ":")[1], "\"", "")
+				queryTag := fmt.Sprintf(`url:"%v,omitempty"`, tagFieldName)
 				field.Tag = fmt.Sprintf(`%v %v`, field.Tag, queryTag)
 			}
 		}
-
 	}
 	return b
 }

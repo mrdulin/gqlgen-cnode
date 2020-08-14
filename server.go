@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"os"
 
-	httpClient "github.com/mrdulin/gqlgen-cnode/utils/httpClient"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/mrdulin/gqlgen-cnode/graph/generated"
 	"github.com/mrdulin/gqlgen-cnode/graph/resolver"
 	"github.com/mrdulin/gqlgen-cnode/services"
+	"github.com/mrdulin/gqlgen-cnode/utils/httpClient"
 )
 
 const defaultPort = "8080"
@@ -28,7 +27,14 @@ func main() {
 	}
 	hc := httpClient.New()
 	topicService := services.NewTopicService(hc, baseUrl)
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{TopicService: topicService}}))
+	userService := services.NewUserService(hc, baseUrl)
+
+	resolvers := resolver.Resolver{
+		TopicService: topicService,
+		UserService:  userService,
+	}
+
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolvers}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

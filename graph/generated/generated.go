@@ -35,6 +35,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Mutation() MutationResolver
 	Query() QueryResolver
 }
 
@@ -42,9 +43,14 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Mutation struct {
+		ValidateAccessToken func(childComplexity int, accesstoken string) int
+	}
+
 	Query struct {
-		Topic  func(childComplexity int, id string) int
+		Topic  func(childComplexity int, params model.TopicRequestParams) int
 		Topics func(childComplexity int, params model.TopicsRequestParams) int
+		User   func(childComplexity int, loginname string) int
 	}
 
 	RecentReply struct {
@@ -106,6 +112,7 @@ type ComplexityRoot struct {
 
 	User struct {
 		AvatarURL func(childComplexity int) int
+		ID        func(childComplexity int) int
 		Loginname func(childComplexity int) int
 	}
 
@@ -120,9 +127,13 @@ type ComplexityRoot struct {
 	}
 }
 
+type MutationResolver interface {
+	ValidateAccessToken(ctx context.Context, accesstoken string) (*model.User, error)
+}
 type QueryResolver interface {
 	Topics(ctx context.Context, params model.TopicsRequestParams) ([]*model.Topic, error)
-	Topic(ctx context.Context, id string) (*model.TopicDetail, error)
+	Topic(ctx context.Context, params model.TopicRequestParams) (*model.TopicDetail, error)
+	User(ctx context.Context, loginname string) (*model.UserDetail, error)
 }
 
 type executableSchema struct {
@@ -140,6 +151,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "Mutation.validateAccessToken":
+		if e.complexity.Mutation.ValidateAccessToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_validateAccessToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ValidateAccessToken(childComplexity, args["accesstoken"].(string)), true
+
 	case "Query.topic":
 		if e.complexity.Query.Topic == nil {
 			break
@@ -150,7 +173,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Topic(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.Topic(childComplexity, args["params"].(model.TopicRequestParams)), true
 
 	case "Query.topics":
 		if e.complexity.Query.Topics == nil {
@@ -163,6 +186,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Topics(childComplexity, args["params"].(model.TopicsRequestParams)), true
+
+	case "Query.user":
+		if e.complexity.Query.User == nil {
+			break
+		}
+
+		args, err := ec.field_Query_user_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.User(childComplexity, args["loginname"].(string)), true
 
 	case "RecentReply.author":
 		if e.complexity.RecentReply.Author == nil {
@@ -465,6 +500,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.AvatarURL(childComplexity), true
 
+	case "User.id":
+		if e.complexity.User.ID == nil {
+			break
+		}
+
+		return e.complexity.User.ID(childComplexity), true
+
 	case "User.loginname":
 		if e.complexity.User.Loginname == nil {
 			break
@@ -545,6 +587,20 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 				Data: buf.Bytes(),
 			}
 		}
+	case ast.Mutation:
+		return func(ctx context.Context) *graphql.Response {
+			if !first {
+				return nil
+			}
+			first = false
+			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
+			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
 
 	default:
 		return graphql.OneShot(graphql.ErrorResponse(ctx, "unsupported GraphQL operation"))
@@ -591,9 +647,13 @@ type RecentReply {
 `, BuiltIn: false},
 	&ast.Source{Name: "graph/schema/root.graphql", Input: `type Query {
   topics(params: TopicsRequestParams!): [Topic]!
-  topic(id: ID!): TopicDetail
+  topic(params: TopicRequestParams!): TopicDetail
+  user(loginname: String!): UserDetail
 }
-`, BuiltIn: false},
+
+type Mutation {
+  validateAccessToken(accesstoken: String!): User
+}`, BuiltIn: false},
 	&ast.Source{Name: "graph/schema/topic.graphql", Input: `type Topic {
   id: ID!
   author_id: ID!
@@ -634,13 +694,28 @@ type RecentTopic {
   author: User 
 }
 
+enum TopicTab {
+  ask
+  share
+  job
+  good
+}
+
 input TopicsRequestParams {
-  page: Int = 0
-  tab: String
+  page: Int = 1
+  tab: TopicTab
   limit: Int = 10
   mdrender: String = "true"
-}`, BuiltIn: false},
-	&ast.Source{Name: "graph/schema/user.graphql", Input: `type User { 
+}
+
+input TopicRequestParams {
+  id: ID!
+  accesstoken: String
+  mdrender: String = "true"
+}
+`, BuiltIn: false},
+	&ast.Source{Name: "graph/schema/user.graphql", Input: `type User {
+  id: ID! 
   loginname: String 
   avatar_url: String 
 }
@@ -661,6 +736,20 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_Mutation_validateAccessToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["accesstoken"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["accesstoken"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -678,14 +767,14 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_topic_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+	var arg0 model.TopicRequestParams
+	if tmp, ok := rawArgs["params"]; ok {
+		arg0, err = ec.unmarshalNTopicRequestParams2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicRequestParams(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["id"] = arg0
+	args["params"] = arg0
 	return args, nil
 }
 
@@ -700,6 +789,20 @@ func (ec *executionContext) field_Query_topics_args(ctx context.Context, rawArgs
 		}
 	}
 	args["params"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["loginname"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["loginname"] = arg0
 	return args, nil
 }
 
@@ -738,6 +841,44 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _Mutation_validateAccessToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_validateAccessToken_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ValidateAccessToken(rctx, args["accesstoken"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _Query_topics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
@@ -804,7 +945,7 @@ func (ec *executionContext) _Query_topic(ctx context.Context, field graphql.Coll
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Topic(rctx, args["id"].(string))
+		return ec.resolvers.Query().Topic(rctx, args["params"].(model.TopicRequestParams))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -816,6 +957,44 @@ func (ec *executionContext) _Query_topic(ctx context.Context, field graphql.Coll
 	res := resTmp.(*model.TopicDetail)
 	fc.Result = res
 	return ec.marshalOTopicDetail2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicDetail(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_user_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().User(rctx, args["loginname"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.UserDetail)
+	fc.Result = res
+	return ec.marshalOUserDetail2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUserDetail(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2219,6 +2398,40 @@ func (ec *executionContext) _TopicDetail_author(ctx context.Context, field graph
 	return ec.marshalOUser2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _User_loginname(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3553,10 +3766,47 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputTopicRequestParams(ctx context.Context, obj interface{}) (model.TopicRequestParams, error) {
+	var it model.TopicRequestParams
+	var asMap = obj.(map[string]interface{})
+
+	if _, present := asMap["mdrender"]; !present {
+		asMap["mdrender"] = "true"
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "id":
+			var err error
+			it.ID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "accesstoken":
+			var err error
+			it.Accesstoken, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "mdrender":
+			var err error
+			it.Mdrender, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTopicsRequestParams(ctx context.Context, obj interface{}) (model.TopicsRequestParams, error) {
 	var it model.TopicsRequestParams
 	var asMap = obj.(map[string]interface{})
 
+	if _, present := asMap["page"]; !present {
+		asMap["page"] = 1
+	}
 	if _, present := asMap["limit"]; !present {
 		asMap["limit"] = 10
 	}
@@ -3574,7 +3824,7 @@ func (ec *executionContext) unmarshalInputTopicsRequestParams(ctx context.Contex
 			}
 		case "tab":
 			var err error
-			it.Tab, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			it.Tab, err = ec.unmarshalOTopicTab2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicTab(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3603,6 +3853,34 @@ func (ec *executionContext) unmarshalInputTopicsRequestParams(ctx context.Contex
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var mutationImplementors = []string{"Mutation"}
+
+func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, mutationImplementors)
+
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Mutation",
+	})
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Mutation")
+		case "validateAccessToken":
+			out.Values[i] = ec._Mutation_validateAccessToken(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
 
 var queryImplementors = []string{"Query"}
 
@@ -3642,6 +3920,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_topic(ctx, field)
+				return res
+			})
+		case "user":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_user(ctx, field)
 				return res
 			})
 		case "__type":
@@ -3894,6 +4183,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("User")
+		case "id":
+			out.Values[i] = ec._User_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "loginname":
 			out.Values[i] = ec._User_loginname(ctx, field, obj)
 		case "avatar_url":
@@ -4296,6 +4590,10 @@ func (ec *executionContext) marshalNTopic2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgen�
 	}
 	wg.Wait()
 	return ret
+}
+
+func (ec *executionContext) unmarshalNTopicRequestParams2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicRequestParams(ctx context.Context, v interface{}) (model.TopicRequestParams, error) {
+	return ec.unmarshalInputTopicRequestParams(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNTopicsRequestParams2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicsRequestParams(ctx context.Context, v interface{}) (model.TopicsRequestParams, error) {
@@ -4795,6 +5093,30 @@ func (ec *executionContext) marshalOTopicDetail2ᚖgithubᚗcomᚋmrdulinᚋgqlg
 	return ec._TopicDetail(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOTopicTab2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicTab(ctx context.Context, v interface{}) (model.TopicTab, error) {
+	var res model.TopicTab
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalOTopicTab2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicTab(ctx context.Context, sel ast.SelectionSet, v model.TopicTab) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalOTopicTab2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicTab(ctx context.Context, v interface{}) (*model.TopicTab, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOTopicTab2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicTab(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOTopicTab2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐTopicTab(ctx context.Context, sel ast.SelectionSet, v *model.TopicTab) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) marshalOUser2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
@@ -4804,6 +5126,17 @@ func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcn
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOUserDetail2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUserDetail(ctx context.Context, sel ast.SelectionSet, v model.UserDetail) graphql.Marshaler {
+	return ec._UserDetail(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOUserDetail2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUserDetail(ctx context.Context, sel ast.SelectionSet, v *model.UserDetail) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UserDetail(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

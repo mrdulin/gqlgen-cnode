@@ -11,11 +11,11 @@ import (
 )
 
 type ResponseData struct {
-	Data json.RawMessage `json:"data"`
+	Data json.RawMessage `json:"data,omitempty"`
 }
 type ResponseStatus struct {
 	Success      bool   `json:"success"`
-	ErrorMessage string `json:"error_msg"`
+	ErrorMessage string `json:"error_msg,omitempty"`
 }
 
 // Response API response struct
@@ -24,12 +24,14 @@ type Response struct {
 	ResponseData
 }
 
+type ResponseMap map[string]interface{}
+
 type HttpClient interface {
 	Get(url string, data interface{}) error
 	Post(url string, body interface{}, data interface{}) error
-	HandleAPIError(res Response) error
-	Decode(body io.ReadCloser, res *Response) error
-	Unmarshal(byte []byte, data interface{}) error
+	HandleAPIError(res interface{}) error
+	Decode(body io.ReadCloser, res interface{}) error
+	Unmarshal(byte interface{}, data interface{}) error
 }
 
 type httpClient struct{}
@@ -53,7 +55,7 @@ func (h *httpClient) Get(url string, data interface{}) error {
 	if err = h.HandleAPIError(res); err != nil {
 		return err
 	}
-	if err = h.Unmarshal(res.Data, data); err != nil {
+	if err = h.Unmarshal(res, data); err != nil {
 		return err
 	}
 	return nil
@@ -61,7 +63,7 @@ func (h *httpClient) Get(url string, data interface{}) error {
 
 //Post send POST HTTP request
 func (h *httpClient) Post(url string, body interface{}, data interface{}) error {
-	var res Response
+	var res ResponseMap
 	jsonValue, err := json.Marshal(body)
 	if err != nil {
 		return errors.Wrapf(err, "json.Marshal(body). body: %+v", body)
@@ -77,13 +79,13 @@ func (h *httpClient) Post(url string, body interface{}, data interface{}) error 
 	if err = h.HandleAPIError(res); err != nil {
 		return err
 	}
-	if err = h.Unmarshal(res.Data, data); err != nil {
+	if err = h.Unmarshal(res, data); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (h *httpClient) Decode(body io.ReadCloser, res *Response) error {
+func (h *httpClient) Decode(body io.ReadCloser, res interface{}) error {
 	err := json.NewDecoder(body).Decode(res)
 	if err != nil {
 		return errors.Wrapf(err, "json.NewDecoder(resp.Body).Decode(&res)")
@@ -91,17 +93,42 @@ func (h *httpClient) Decode(body io.ReadCloser, res *Response) error {
 	return nil
 }
 
-func (h *httpClient) Unmarshal(byte []byte, data interface{}) error {
-	err := json.Unmarshal(byte, &data)
-	if err != nil {
-		return errors.Wrapf(err, "json.Unmarshal. []byte: %s", string(byte))
+func (h *httpClient) Unmarshal(res interface{}, data interface{}) error {
+	switch v := res.(type) {
+	case Response:
+		err := json.Unmarshal(v.Data, &data)
+		if err != nil {
+			return errors.Wrapf(err, "json.Unmarshal. data: %s", string(v.Data))
+		}
+	case ResponseMap:
+		var r interface{}
+		if v["data"] != nil {
+			r = v["data"]
+		}
+		r = v
+		bs, err := json.Marshal(r)
+		if err != nil {
+			return errors.Wrapf(err, "json.Marshal(r). v: %+v", r)
+		}
+		err = json.Unmarshal(bs, &data)
+		if err != nil {
+			return errors.Wrapf(err, "json.Unmarshal. data: %s", string(bs))
+		}
 	}
+
 	return nil
 }
 
-func (h *httpClient) HandleAPIError(res Response) error {
-	if !res.Success {
-		return fmt.Errorf("API error: %s", res.ErrorMessage)
+func (h *httpClient) HandleAPIError(res interface{}) error {
+	switch v := res.(type) {
+	case Response:
+		if !v.Success {
+			return fmt.Errorf("API error: %s", v.ErrorMessage)
+		}
+	case ResponseMap:
+		if v["success"] == false {
+			return fmt.Errorf("API error: %s", v["error_msg"])
+		}
 	}
 	return nil
 }

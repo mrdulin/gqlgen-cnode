@@ -16,14 +16,14 @@ type topicService struct {
 }
 
 type TopicService interface {
-	GetTopicsByPage(params model.TopicsRequestParams) []*model.Topic
-	GetTopicById(id string) *model.TopicDetail
+	GetTopicsByPage(params *model.TopicsRequestParams) []*model.Topic
+	GetTopicById(params *model.TopicRequestParams) *model.TopicDetail
 }
 
 func NewTopicService(httpClient httpClient.HttpClient, BaseURL string) *topicService {
 	return &topicService{HttpClient: httpClient, BaseURL: BaseURL}
 }
-func (t *topicService) GetTopicsByPage(params model.TopicsRequestParams) []*model.Topic {
+func (t *topicService) GetTopicsByPage(params *model.TopicsRequestParams) []*model.Topic {
 	base, err := url.Parse(t.BaseURL + "/topics")
 	var res []*model.Topic
 	if err != nil {
@@ -44,13 +44,23 @@ func (t *topicService) GetTopicsByPage(params model.TopicsRequestParams) []*mode
 	return res
 }
 
-func (t *topicService) GetTopicById(id string) *model.TopicDetail {
-	endpoint := t.BaseURL + "/topic/" + id
-	res := model.TopicDetail{}
-	err := t.HttpClient.Get(endpoint, &res)
+func (t *topicService) GetTopicById(params *model.TopicRequestParams) *model.TopicDetail {
+	base, err := url.Parse(t.BaseURL + "/topic/" + params.ID)
+	var res *model.TopicDetail
+	if err != nil {
+		fmt.Println("Get topic by id error: parse url.", err)
+		return res
+	}
+	urlValues := url.Values{}
+	if params.Accesstoken != nil {
+		urlValues.Add("accesstoken", *params.Accesstoken)
+	}
+	urlValues.Add("mdrender", *params.Mdrender)
+	base.RawQuery = urlValues.Encode()
+	err = t.HttpClient.Get(base.String(), &res)
 	if err != nil {
 		fmt.Println(err)
-		return &res
+		return res
 	}
-	return &res
+	return res
 }
