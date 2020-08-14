@@ -195,14 +195,14 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Message.Author(childComplexity), true
 
-	case "Message.create_at":
+	case "Message.createAt":
 		if e.complexity.Message.CreateAt == nil {
 			break
 		}
 
 		return e.complexity.Message.CreateAt(childComplexity), true
 
-	case "Message.has_read":
+	case "Message.hasRead":
 		if e.complexity.Message.HasRead == nil {
 			break
 		}
@@ -237,14 +237,14 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Message.Type(childComplexity), true
 
-	case "MessagesResponse.has_read_messages":
+	case "MessagesResponse.hasReadMessages":
 		if e.complexity.MessagesResponse.HasReadMessages == nil {
 			break
 		}
 
 		return e.complexity.MessagesResponse.HasReadMessages(childComplexity), true
 
-	case "MessagesResponse.hasnot_read_messages":
+	case "MessagesResponse.hasnotReadMessages":
 		if e.complexity.MessagesResponse.HasnotReadMessages == nil {
 			break
 		}
@@ -337,7 +337,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Reply.Content(childComplexity), true
 
-	case "Reply.create_at":
+	case "Reply.createAt":
 		if e.complexity.Reply.CreateAt == nil {
 			break
 		}
@@ -351,7 +351,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Reply.ID(childComplexity), true
 
-	case "Reply.is_uped":
+	case "Reply.isUped":
 		if e.complexity.Reply.IsUped == nil {
 			break
 		}
@@ -379,7 +379,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ReplyForMessage.Content(childComplexity), true
 
-	case "ReplyForMessage.create_at":
+	case "ReplyForMessage.createAt":
 		if e.complexity.ReplyForMessage.CreateAt == nil {
 			break
 		}
@@ -414,7 +414,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ReplyRecent.ID(childComplexity), true
 
-	case "ReplyRecent.last_reply_at":
+	case "ReplyRecent.lastReplyAt":
 		if e.complexity.ReplyRecent.LastReplyAt == nil {
 			break
 		}
@@ -435,7 +435,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Topic.Author(childComplexity), true
 
-	case "Topic.author_id":
+	case "Topic.authorId":
 		if e.complexity.Topic.AuthorID == nil {
 			break
 		}
@@ -449,7 +449,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Topic.Content(childComplexity), true
 
-	case "Topic.create_at":
+	case "Topic.createAt":
 		if e.complexity.Topic.CreateAt == nil {
 			break
 		}
@@ -470,21 +470,21 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Topic.ID(childComplexity), true
 
-	case "Topic.is_collect":
+	case "Topic.isCollect":
 		if e.complexity.Topic.IsCollect == nil {
 			break
 		}
 
 		return e.complexity.Topic.IsCollect(childComplexity), true
 
-	case "Topic.last_reply_at":
+	case "Topic.lastReplyAt":
 		if e.complexity.Topic.LastReplyAt == nil {
 			break
 		}
 
 		return e.complexity.Topic.LastReplyAt(childComplexity), true
 
-	case "Topic.reply_count":
+	case "Topic.replyCount":
 		if e.complexity.Topic.ReplyCount == nil {
 			break
 		}
@@ -512,7 +512,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Topic.Top(childComplexity), true
 
-	case "Topic.visit_count":
+	case "Topic.visitCount":
 		if e.complexity.Topic.VisitCount == nil {
 			break
 		}
@@ -526,7 +526,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicDetail.Author(childComplexity), true
 
-	case "TopicDetail.author_id":
+	case "TopicDetail.authorId":
 		if e.complexity.TopicDetail.AuthorID == nil {
 			break
 		}
@@ -540,7 +540,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicDetail.Content(childComplexity), true
 
-	case "TopicDetail.create_at":
+	case "TopicDetail.createAt":
 		if e.complexity.TopicDetail.CreateAt == nil {
 			break
 		}
@@ -561,14 +561,14 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicDetail.ID(childComplexity), true
 
-	case "TopicDetail.is_collect":
+	case "TopicDetail.isCollect":
 		if e.complexity.TopicDetail.IsCollect == nil {
 			break
 		}
 
 		return e.complexity.TopicDetail.IsCollect(childComplexity), true
 
-	case "TopicDetail.last_reply_at":
+	case "TopicDetail.lastReplyAt":
 		if e.complexity.TopicDetail.LastReplyAt == nil {
 			break
 		}
@@ -582,7 +582,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicDetail.Replies(childComplexity), true
 
-	case "TopicDetail.reply_count":
+	case "TopicDetail.replyCount":
 		if e.complexity.TopicDetail.ReplyCount == nil {
 			break
 		}
@@ -610,7 +610,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicDetail.Top(childComplexity), true
 
-	case "TopicDetail.visit_count":
+	case "TopicDetail.visitCount":
 		if e.complexity.TopicDetail.VisitCount == nil {
 			break
 		}
@@ -624,7 +624,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicForMessage.ID(childComplexity), true
 
-	case "TopicForMessage.last_reply_at":
+	case "TopicForMessage.lastReplyAt":
 		if e.complexity.TopicForMessage.LastReplyAt == nil {
 			break
 		}
@@ -652,7 +652,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicRecent.ID(childComplexity), true
 
-	case "TopicRecent.last_reply_at":
+	case "TopicRecent.lastReplyAt":
 		if e.complexity.TopicRecent.LastReplyAt == nil {
 			break
 		}
@@ -666,7 +666,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TopicRecent.Title(childComplexity), true
 
-	case "User.avatar_url":
+	case "User.avatarUrl":
 		if e.complexity.User.AvatarURL == nil {
 			break
 		}
@@ -680,14 +680,14 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Loginname(childComplexity), true
 
-	case "UserDetail.avatar_url":
+	case "UserDetail.avatarUrl":
 		if e.complexity.UserDetail.AvatarURL == nil {
 			break
 		}
 
 		return e.complexity.UserDetail.AvatarURL(childComplexity), true
 
-	case "UserDetail.create_at":
+	case "UserDetail.createAt":
 		if e.complexity.UserDetail.CreateAt == nil {
 			break
 		}
@@ -708,14 +708,14 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserDetail.Loginname(childComplexity), true
 
-	case "UserDetail.recent_replies":
+	case "UserDetail.recentReplies":
 		if e.complexity.UserDetail.RecentReplies == nil {
 			break
 		}
 
 		return e.complexity.UserDetail.RecentReplies(childComplexity), true
 
-	case "UserDetail.recent_topics":
+	case "UserDetail.recentTopics":
 		if e.complexity.UserDetail.RecentTopics == nil {
 			break
 		}
@@ -729,7 +729,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserDetail.Score(childComplexity), true
 
-	case "UserEntity.avatar_url":
+	case "UserEntity.avatarUrl":
 		if e.complexity.UserEntity.AvatarURL == nil {
 			break
 		}
@@ -817,23 +817,23 @@ var sources = []*ast.Source{
 	&ast.Source{Name: "graph/schema/message.graphql", Input: `type Message {
   id: ID!
   type: String
-  has_read: Boolean
-  create_at: String
+  hasRead: Boolean
+  createAt: String
   reply: ReplyForMessage
   topic: TopicForMessage
   author: User 
 }
 
 type MessagesResponse {
-  has_read_messages: [Message]!
-  hasnot_read_messages: [Message]!
+  hasReadMessages: [Message]!
+  hasnotReadMessages: [Message]!
 }`, BuiltIn: false},
 	&ast.Source{Name: "graph/schema/reply.graphql", Input: `type Reply { 
   id: ID!
   content: String
-  create_at: String
+  createAt: String
   reply_id: ID
-  is_uped: Boolean
+  isUped: Boolean
   ups: [ID]!
   author: User 
 }
@@ -841,14 +841,14 @@ type MessagesResponse {
 type ReplyForMessage { 
   id: String
   content: String
-  create_at: String
+  createAt: String
   ups: [ID]!
 }
 
 type ReplyRecent { 
   id: ID!
   title: String
-  last_reply_at: String
+  lastReplyAt: String
   author: User 
 }
 
@@ -866,33 +866,33 @@ type Mutation {
 }`, BuiltIn: false},
 	&ast.Source{Name: "graph/schema/topic.graphql", Input: `type Topic {
   id: ID!
-  author_id: ID!
+  authorId: ID!
   tab: String
   content: String
   title: String!
-  last_reply_at: String
+  lastReplyAt: String
   good: Boolean
   top: Boolean
-  reply_count: Int
-  visit_count: Int
-  create_at: String
-  is_collect: Boolean
+  replyCount: Int
+  visitCount: Int
+  createAt: String
+  isCollect: Boolean
   author: User
 }
 
 type TopicDetail {
   id: ID!
-  author_id: ID!
+  authorId: ID!
   tab: String
   content: String
   title: String!
-  last_reply_at: String
+  lastReplyAt: String
   good: Boolean
   top: Boolean
-  reply_count: Int
-  visit_count: Int
-  create_at: String
-  is_collect: Boolean
+  replyCount: Int
+  visitCount: Int
+  createAt: String
+  isCollect: Boolean
   replies: [Reply]
   author: User
 }
@@ -900,14 +900,14 @@ type TopicDetail {
 type TopicRecent { 
   id: ID!
   title: String
-  last_reply_at: String
+  lastReplyAt: String
   author: User 
 }
 
 type TopicForMessage {
   id: ID! 
   title: String! 
-  last_reply_at: String
+  lastReplyAt: String
 }
 
 enum TopicTab {
@@ -932,23 +932,23 @@ input TopicRequestParams {
 `, BuiltIn: false},
 	&ast.Source{Name: "graph/schema/user.graphql", Input: `type User { 
   loginname: String 
-  avatar_url: String 
+  avatarUrl: String 
 }
 
 type UserEntity {
   id: ID!
   loginname: String 
-  avatar_url: String
+  avatarUrl: String
 }
 
 type UserDetail { 
   loginname: String
-  avatar_url: String
+  avatarUrl: String
   githubUsername: String
-  create_at: String
+  createAt: String
   score: Int
-  recent_replies: [ReplyRecent]
-  recent_topics: [TopicRecent] 
+  recentReplies: [ReplyRecent]
+  recentTopics: [TopicRecent] 
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -1164,7 +1164,7 @@ func (ec *executionContext) _Message_type(ctx context.Context, field graphql.Col
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Message_has_read(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
+func (ec *executionContext) _Message_hasRead(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1195,7 +1195,7 @@ func (ec *executionContext) _Message_has_read(ctx context.Context, field graphql
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Message_create_at(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
+func (ec *executionContext) _Message_createAt(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1319,7 +1319,7 @@ func (ec *executionContext) _Message_author(ctx context.Context, field graphql.C
 	return ec.marshalOUser2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _MessagesResponse_has_read_messages(ctx context.Context, field graphql.CollectedField, obj *model.MessagesResponse) (ret graphql.Marshaler) {
+func (ec *executionContext) _MessagesResponse_hasReadMessages(ctx context.Context, field graphql.CollectedField, obj *model.MessagesResponse) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1353,7 +1353,7 @@ func (ec *executionContext) _MessagesResponse_has_read_messages(ctx context.Cont
 	return ec.marshalNMessage2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessage(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _MessagesResponse_hasnot_read_messages(ctx context.Context, field graphql.CollectedField, obj *model.MessagesResponse) (ret graphql.Marshaler) {
+func (ec *executionContext) _MessagesResponse_hasnotReadMessages(ctx context.Context, field graphql.CollectedField, obj *model.MessagesResponse) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1755,7 +1755,7 @@ func (ec *executionContext) _Reply_content(ctx context.Context, field graphql.Co
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Reply_create_at(ctx context.Context, field graphql.CollectedField, obj *model.Reply) (ret graphql.Marshaler) {
+func (ec *executionContext) _Reply_createAt(ctx context.Context, field graphql.CollectedField, obj *model.Reply) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1817,7 +1817,7 @@ func (ec *executionContext) _Reply_reply_id(ctx context.Context, field graphql.C
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Reply_is_uped(ctx context.Context, field graphql.CollectedField, obj *model.Reply) (ret graphql.Marshaler) {
+func (ec *executionContext) _Reply_isUped(ctx context.Context, field graphql.CollectedField, obj *model.Reply) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1975,7 +1975,7 @@ func (ec *executionContext) _ReplyForMessage_content(ctx context.Context, field 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _ReplyForMessage_create_at(ctx context.Context, field graphql.CollectedField, obj *model.ReplyForMessage) (ret graphql.Marshaler) {
+func (ec *executionContext) _ReplyForMessage_createAt(ctx context.Context, field graphql.CollectedField, obj *model.ReplyForMessage) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2105,7 +2105,7 @@ func (ec *executionContext) _ReplyRecent_title(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _ReplyRecent_last_reply_at(ctx context.Context, field graphql.CollectedField, obj *model.ReplyRecent) (ret graphql.Marshaler) {
+func (ec *executionContext) _ReplyRecent_lastReplyAt(ctx context.Context, field graphql.CollectedField, obj *model.ReplyRecent) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2201,7 +2201,7 @@ func (ec *executionContext) _Topic_id(ctx context.Context, field graphql.Collect
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Topic_author_id(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
+func (ec *executionContext) _Topic_authorId(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2331,7 +2331,7 @@ func (ec *executionContext) _Topic_title(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Topic_last_reply_at(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
+func (ec *executionContext) _Topic_lastReplyAt(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2424,7 +2424,7 @@ func (ec *executionContext) _Topic_top(ctx context.Context, field graphql.Collec
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Topic_reply_count(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
+func (ec *executionContext) _Topic_replyCount(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2455,7 +2455,7 @@ func (ec *executionContext) _Topic_reply_count(ctx context.Context, field graphq
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Topic_visit_count(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
+func (ec *executionContext) _Topic_visitCount(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2486,7 +2486,7 @@ func (ec *executionContext) _Topic_visit_count(ctx context.Context, field graphq
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Topic_create_at(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
+func (ec *executionContext) _Topic_createAt(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2517,7 +2517,7 @@ func (ec *executionContext) _Topic_create_at(ctx context.Context, field graphql.
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Topic_is_collect(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
+func (ec *executionContext) _Topic_isCollect(ctx context.Context, field graphql.CollectedField, obj *model.Topic) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2613,7 +2613,7 @@ func (ec *executionContext) _TopicDetail_id(ctx context.Context, field graphql.C
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _TopicDetail_author_id(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
+func (ec *executionContext) _TopicDetail_authorId(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2743,7 +2743,7 @@ func (ec *executionContext) _TopicDetail_title(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _TopicDetail_last_reply_at(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
+func (ec *executionContext) _TopicDetail_lastReplyAt(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2836,7 +2836,7 @@ func (ec *executionContext) _TopicDetail_top(ctx context.Context, field graphql.
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _TopicDetail_reply_count(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
+func (ec *executionContext) _TopicDetail_replyCount(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2867,7 +2867,7 @@ func (ec *executionContext) _TopicDetail_reply_count(ctx context.Context, field 
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _TopicDetail_visit_count(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
+func (ec *executionContext) _TopicDetail_visitCount(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2898,7 +2898,7 @@ func (ec *executionContext) _TopicDetail_visit_count(ctx context.Context, field 
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _TopicDetail_create_at(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
+func (ec *executionContext) _TopicDetail_createAt(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2929,7 +2929,7 @@ func (ec *executionContext) _TopicDetail_create_at(ctx context.Context, field gr
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _TopicDetail_is_collect(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
+func (ec *executionContext) _TopicDetail_isCollect(ctx context.Context, field graphql.CollectedField, obj *model.TopicDetail) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3090,7 +3090,7 @@ func (ec *executionContext) _TopicForMessage_title(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _TopicForMessage_last_reply_at(ctx context.Context, field graphql.CollectedField, obj *model.TopicForMessage) (ret graphql.Marshaler) {
+func (ec *executionContext) _TopicForMessage_lastReplyAt(ctx context.Context, field graphql.CollectedField, obj *model.TopicForMessage) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3186,7 +3186,7 @@ func (ec *executionContext) _TopicRecent_title(ctx context.Context, field graphq
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _TopicRecent_last_reply_at(ctx context.Context, field graphql.CollectedField, obj *model.TopicRecent) (ret graphql.Marshaler) {
+func (ec *executionContext) _TopicRecent_lastReplyAt(ctx context.Context, field graphql.CollectedField, obj *model.TopicRecent) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3279,7 +3279,7 @@ func (ec *executionContext) _User_loginname(ctx context.Context, field graphql.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_avatar_url(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_avatarUrl(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3341,7 +3341,7 @@ func (ec *executionContext) _UserDetail_loginname(ctx context.Context, field gra
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _UserDetail_avatar_url(ctx context.Context, field graphql.CollectedField, obj *model.UserDetail) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserDetail_avatarUrl(ctx context.Context, field graphql.CollectedField, obj *model.UserDetail) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3403,7 +3403,7 @@ func (ec *executionContext) _UserDetail_githubUsername(ctx context.Context, fiel
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _UserDetail_create_at(ctx context.Context, field graphql.CollectedField, obj *model.UserDetail) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserDetail_createAt(ctx context.Context, field graphql.CollectedField, obj *model.UserDetail) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3465,7 +3465,7 @@ func (ec *executionContext) _UserDetail_score(ctx context.Context, field graphql
 	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _UserDetail_recent_replies(ctx context.Context, field graphql.CollectedField, obj *model.UserDetail) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserDetail_recentReplies(ctx context.Context, field graphql.CollectedField, obj *model.UserDetail) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3496,7 +3496,7 @@ func (ec *executionContext) _UserDetail_recent_replies(ctx context.Context, fiel
 	return ec.marshalOReplyRecent2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐReplyRecent(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _UserDetail_recent_topics(ctx context.Context, field graphql.CollectedField, obj *model.UserDetail) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserDetail_recentTopics(ctx context.Context, field graphql.CollectedField, obj *model.UserDetail) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -3592,7 +3592,7 @@ func (ec *executionContext) _UserEntity_loginname(ctx context.Context, field gra
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _UserEntity_avatar_url(ctx context.Context, field graphql.CollectedField, obj *model.UserEntity) (ret graphql.Marshaler) {
+func (ec *executionContext) _UserEntity_avatarUrl(ctx context.Context, field graphql.CollectedField, obj *model.UserEntity) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -4784,10 +4784,10 @@ func (ec *executionContext) _Message(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "type":
 			out.Values[i] = ec._Message_type(ctx, field, obj)
-		case "has_read":
-			out.Values[i] = ec._Message_has_read(ctx, field, obj)
-		case "create_at":
-			out.Values[i] = ec._Message_create_at(ctx, field, obj)
+		case "hasRead":
+			out.Values[i] = ec._Message_hasRead(ctx, field, obj)
+		case "createAt":
+			out.Values[i] = ec._Message_createAt(ctx, field, obj)
 		case "reply":
 			out.Values[i] = ec._Message_reply(ctx, field, obj)
 		case "topic":
@@ -4816,13 +4816,13 @@ func (ec *executionContext) _MessagesResponse(ctx context.Context, sel ast.Selec
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("MessagesResponse")
-		case "has_read_messages":
-			out.Values[i] = ec._MessagesResponse_has_read_messages(ctx, field, obj)
+		case "hasReadMessages":
+			out.Values[i] = ec._MessagesResponse_hasReadMessages(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "hasnot_read_messages":
-			out.Values[i] = ec._MessagesResponse_hasnot_read_messages(ctx, field, obj)
+		case "hasnotReadMessages":
+			out.Values[i] = ec._MessagesResponse_hasnotReadMessages(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -4974,12 +4974,12 @@ func (ec *executionContext) _Reply(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "content":
 			out.Values[i] = ec._Reply_content(ctx, field, obj)
-		case "create_at":
-			out.Values[i] = ec._Reply_create_at(ctx, field, obj)
+		case "createAt":
+			out.Values[i] = ec._Reply_createAt(ctx, field, obj)
 		case "reply_id":
 			out.Values[i] = ec._Reply_reply_id(ctx, field, obj)
-		case "is_uped":
-			out.Values[i] = ec._Reply_is_uped(ctx, field, obj)
+		case "isUped":
+			out.Values[i] = ec._Reply_isUped(ctx, field, obj)
 		case "ups":
 			out.Values[i] = ec._Reply_ups(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -5013,8 +5013,8 @@ func (ec *executionContext) _ReplyForMessage(ctx context.Context, sel ast.Select
 			out.Values[i] = ec._ReplyForMessage_id(ctx, field, obj)
 		case "content":
 			out.Values[i] = ec._ReplyForMessage_content(ctx, field, obj)
-		case "create_at":
-			out.Values[i] = ec._ReplyForMessage_create_at(ctx, field, obj)
+		case "createAt":
+			out.Values[i] = ec._ReplyForMessage_createAt(ctx, field, obj)
 		case "ups":
 			out.Values[i] = ec._ReplyForMessage_ups(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -5049,8 +5049,8 @@ func (ec *executionContext) _ReplyRecent(ctx context.Context, sel ast.SelectionS
 			}
 		case "title":
 			out.Values[i] = ec._ReplyRecent_title(ctx, field, obj)
-		case "last_reply_at":
-			out.Values[i] = ec._ReplyRecent_last_reply_at(ctx, field, obj)
+		case "lastReplyAt":
+			out.Values[i] = ec._ReplyRecent_lastReplyAt(ctx, field, obj)
 		case "author":
 			out.Values[i] = ec._ReplyRecent_author(ctx, field, obj)
 		default:
@@ -5080,8 +5080,8 @@ func (ec *executionContext) _Topic(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "author_id":
-			out.Values[i] = ec._Topic_author_id(ctx, field, obj)
+		case "authorId":
+			out.Values[i] = ec._Topic_authorId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -5094,20 +5094,20 @@ func (ec *executionContext) _Topic(ctx context.Context, sel ast.SelectionSet, ob
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "last_reply_at":
-			out.Values[i] = ec._Topic_last_reply_at(ctx, field, obj)
+		case "lastReplyAt":
+			out.Values[i] = ec._Topic_lastReplyAt(ctx, field, obj)
 		case "good":
 			out.Values[i] = ec._Topic_good(ctx, field, obj)
 		case "top":
 			out.Values[i] = ec._Topic_top(ctx, field, obj)
-		case "reply_count":
-			out.Values[i] = ec._Topic_reply_count(ctx, field, obj)
-		case "visit_count":
-			out.Values[i] = ec._Topic_visit_count(ctx, field, obj)
-		case "create_at":
-			out.Values[i] = ec._Topic_create_at(ctx, field, obj)
-		case "is_collect":
-			out.Values[i] = ec._Topic_is_collect(ctx, field, obj)
+		case "replyCount":
+			out.Values[i] = ec._Topic_replyCount(ctx, field, obj)
+		case "visitCount":
+			out.Values[i] = ec._Topic_visitCount(ctx, field, obj)
+		case "createAt":
+			out.Values[i] = ec._Topic_createAt(ctx, field, obj)
+		case "isCollect":
+			out.Values[i] = ec._Topic_isCollect(ctx, field, obj)
 		case "author":
 			out.Values[i] = ec._Topic_author(ctx, field, obj)
 		default:
@@ -5137,8 +5137,8 @@ func (ec *executionContext) _TopicDetail(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "author_id":
-			out.Values[i] = ec._TopicDetail_author_id(ctx, field, obj)
+		case "authorId":
+			out.Values[i] = ec._TopicDetail_authorId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -5151,20 +5151,20 @@ func (ec *executionContext) _TopicDetail(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "last_reply_at":
-			out.Values[i] = ec._TopicDetail_last_reply_at(ctx, field, obj)
+		case "lastReplyAt":
+			out.Values[i] = ec._TopicDetail_lastReplyAt(ctx, field, obj)
 		case "good":
 			out.Values[i] = ec._TopicDetail_good(ctx, field, obj)
 		case "top":
 			out.Values[i] = ec._TopicDetail_top(ctx, field, obj)
-		case "reply_count":
-			out.Values[i] = ec._TopicDetail_reply_count(ctx, field, obj)
-		case "visit_count":
-			out.Values[i] = ec._TopicDetail_visit_count(ctx, field, obj)
-		case "create_at":
-			out.Values[i] = ec._TopicDetail_create_at(ctx, field, obj)
-		case "is_collect":
-			out.Values[i] = ec._TopicDetail_is_collect(ctx, field, obj)
+		case "replyCount":
+			out.Values[i] = ec._TopicDetail_replyCount(ctx, field, obj)
+		case "visitCount":
+			out.Values[i] = ec._TopicDetail_visitCount(ctx, field, obj)
+		case "createAt":
+			out.Values[i] = ec._TopicDetail_createAt(ctx, field, obj)
+		case "isCollect":
+			out.Values[i] = ec._TopicDetail_isCollect(ctx, field, obj)
 		case "replies":
 			out.Values[i] = ec._TopicDetail_replies(ctx, field, obj)
 		case "author":
@@ -5201,8 +5201,8 @@ func (ec *executionContext) _TopicForMessage(ctx context.Context, sel ast.Select
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "last_reply_at":
-			out.Values[i] = ec._TopicForMessage_last_reply_at(ctx, field, obj)
+		case "lastReplyAt":
+			out.Values[i] = ec._TopicForMessage_lastReplyAt(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5232,8 +5232,8 @@ func (ec *executionContext) _TopicRecent(ctx context.Context, sel ast.SelectionS
 			}
 		case "title":
 			out.Values[i] = ec._TopicRecent_title(ctx, field, obj)
-		case "last_reply_at":
-			out.Values[i] = ec._TopicRecent_last_reply_at(ctx, field, obj)
+		case "lastReplyAt":
+			out.Values[i] = ec._TopicRecent_lastReplyAt(ctx, field, obj)
 		case "author":
 			out.Values[i] = ec._TopicRecent_author(ctx, field, obj)
 		default:
@@ -5260,8 +5260,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = graphql.MarshalString("User")
 		case "loginname":
 			out.Values[i] = ec._User_loginname(ctx, field, obj)
-		case "avatar_url":
-			out.Values[i] = ec._User_avatar_url(ctx, field, obj)
+		case "avatarUrl":
+			out.Values[i] = ec._User_avatarUrl(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5286,18 +5286,18 @@ func (ec *executionContext) _UserDetail(ctx context.Context, sel ast.SelectionSe
 			out.Values[i] = graphql.MarshalString("UserDetail")
 		case "loginname":
 			out.Values[i] = ec._UserDetail_loginname(ctx, field, obj)
-		case "avatar_url":
-			out.Values[i] = ec._UserDetail_avatar_url(ctx, field, obj)
+		case "avatarUrl":
+			out.Values[i] = ec._UserDetail_avatarUrl(ctx, field, obj)
 		case "githubUsername":
 			out.Values[i] = ec._UserDetail_githubUsername(ctx, field, obj)
-		case "create_at":
-			out.Values[i] = ec._UserDetail_create_at(ctx, field, obj)
+		case "createAt":
+			out.Values[i] = ec._UserDetail_createAt(ctx, field, obj)
 		case "score":
 			out.Values[i] = ec._UserDetail_score(ctx, field, obj)
-		case "recent_replies":
-			out.Values[i] = ec._UserDetail_recent_replies(ctx, field, obj)
-		case "recent_topics":
-			out.Values[i] = ec._UserDetail_recent_topics(ctx, field, obj)
+		case "recentReplies":
+			out.Values[i] = ec._UserDetail_recentReplies(ctx, field, obj)
+		case "recentTopics":
+			out.Values[i] = ec._UserDetail_recentTopics(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5327,8 +5327,8 @@ func (ec *executionContext) _UserEntity(ctx context.Context, sel ast.SelectionSe
 			}
 		case "loginname":
 			out.Values[i] = ec._UserEntity_loginname(ctx, field, obj)
-		case "avatar_url":
-			out.Values[i] = ec._UserEntity_avatar_url(ctx, field, obj)
+		case "avatarUrl":
+			out.Values[i] = ec._UserEntity_avatarUrl(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

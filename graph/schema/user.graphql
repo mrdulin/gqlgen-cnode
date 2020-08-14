@@ -1,20 +1,20 @@
 type User { 
   loginname: String 
-  avatar_url: String 
+  avatarUrl: String 
 }
 
 type UserEntity {
   id: ID!
   loginname: String 
-  avatar_url: String
+  avatarUrl: String
 }
 
 type UserDetail { 
   loginname: String
-  avatar_url: String
+  avatarUrl: String
   githubUsername: String
-  create_at: String
+  createAt: String
   score: Int
-  recent_replies: [ReplyRecent]
-  recent_topics: [TopicRecent] 
+  recentReplies: [ReplyRecent]
+  recentTopics: [TopicRecent] 
 }

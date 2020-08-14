@@ -1,9 +1,9 @@
 type Reply { 
   id: ID!
   content: String
-  create_at: String
+  createAt: String
   reply_id: ID
-  is_uped: Boolean
+  isUped: Boolean
   ups: [ID]!
   author: User 
 }
@@ -11,14 +11,14 @@ type Reply {
 type ReplyForMessage { 
   id: String
   content: String
-  create_at: String
+  createAt: String
   ups: [ID]!
 }
 
 type ReplyRecent { 
   id: ID!
   title: String
-  last_reply_at: String
+  lastReplyAt: String
   author: User 
 }
 

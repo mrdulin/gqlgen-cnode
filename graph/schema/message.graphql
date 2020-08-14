@@ -1,14 +1,14 @@
 type Message {
   id: ID!
   type: String
-  has_read: Boolean
-  create_at: String
+  hasRead: Boolean
+  createAt: String
   reply: ReplyForMessage
   topic: TopicForMessage
   author: User 
 }
 
 type MessagesResponse {
-  has_read_messages: [Message]!
-  hasnot_read_messages: [Message]!
+  hasReadMessages: [Message]!
+  hasnotReadMessages: [Message]!
 }

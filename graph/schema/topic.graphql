@@ -1,32 +1,32 @@
 type Topic {
   id: ID!
-  author_id: ID!
+  authorId: ID!
   tab: String
   content: String
   title: String!
-  last_reply_at: String
+  lastReplyAt: String
   good: Boolean
   top: Boolean
-  reply_count: Int
-  visit_count: Int
-  create_at: String
-  is_collect: Boolean
+  replyCount: Int
+  visitCount: Int
+  createAt: String
+  isCollect: Boolean
   author: User
 }
 
 type TopicDetail {
   id: ID!
-  author_id: ID!
+  authorId: ID!
   tab: String
   content: String
   title: String!
-  last_reply_at: String
+  lastReplyAt: String
   good: Boolean
   top: Boolean
-  reply_count: Int
-  visit_count: Int
-  create_at: String
-  is_collect: Boolean
+  replyCount: Int
+  visitCount: Int
+  createAt: String
+  isCollect: Boolean
   replies: [Reply]
   author: User
 }
@@ -34,14 +34,14 @@ type TopicDetail {
 type TopicRecent { 
   id: ID!
   title: String
-  last_reply_at: String
+  lastReplyAt: String
   author: User 
 }
 
 type TopicForMessage {
   id: ID! 
   title: String! 
-  last_reply_at: String
+  lastReplyAt: String
 }
 
 enum TopicTab {
