@@ -12,3 +12,7 @@ type MessagesResponse {
   hasReadMessages: [Message]!
   hasnotReadMessages: [Message]!
 }
+
+type MarkedMessage {
+  id: ID!
+}

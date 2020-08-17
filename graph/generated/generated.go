@@ -43,6 +43,10 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	MarkedMessage struct {
+		ID func(childComplexity int) int
+	}
+
 	Message struct {
 		Author   func(childComplexity int) int
 		CreateAt func(childComplexity int) int
@@ -59,6 +63,8 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		MarkAllMessages     func(childComplexity int, accesstoken string) int
+		MarkOneMessage      func(childComplexity int, accesstoken string, id string) int
 		ValidateAccessToken func(childComplexity int, accesstoken string) int
 	}
 
@@ -164,6 +170,8 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	ValidateAccessToken(ctx context.Context, accesstoken string) (*model.UserEntity, error)
+	MarkOneMessage(ctx context.Context, accesstoken string, id string) (*string, error)
+	MarkAllMessages(ctx context.Context, accesstoken string) ([]*model.MarkedMessage, error)
 }
 type QueryResolver interface {
 	Topics(ctx context.Context, params model.TopicsRequestParams) ([]*model.Topic, error)
@@ -187,6 +195,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "MarkedMessage.id":
+		if e.complexity.MarkedMessage.ID == nil {
+			break
+		}
+
+		return e.complexity.MarkedMessage.ID(childComplexity), true
 
 	case "Message.author":
 		if e.complexity.Message.Author == nil {
@@ -250,6 +265,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MessagesResponse.HasnotReadMessages(childComplexity), true
+
+	case "Mutation.markAllMessages":
+		if e.complexity.Mutation.MarkAllMessages == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_markAllMessages_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.MarkAllMessages(childComplexity, args["accesstoken"].(string)), true
+
+	case "Mutation.markOneMessage":
+		if e.complexity.Mutation.MarkOneMessage == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_markOneMessage_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.MarkOneMessage(childComplexity, args["accesstoken"].(string), args["id"].(string)), true
 
 	case "Mutation.validateAccessToken":
 		if e.complexity.Mutation.ValidateAccessToken == nil {
@@ -827,6 +866,10 @@ var sources = []*ast.Source{
 type MessagesResponse {
   hasReadMessages: [Message]!
   hasnotReadMessages: [Message]!
+}
+
+type MarkedMessage {
+  id: ID!
 }`, BuiltIn: false},
 	&ast.Source{Name: "graph/schema/reply.graphql", Input: `type Reply { 
   id: ID!
@@ -863,6 +906,8 @@ type ReplyRecent {
 
 type Mutation {
   validateAccessToken(accesstoken: String!): UserEntity
+  markOneMessage(accesstoken: String!, id: String!): String
+  markAllMessages(accesstoken: String!): [MarkedMessage]!
 }`, BuiltIn: false},
 	&ast.Source{Name: "graph/schema/topic.graphql", Input: `type Topic {
   id: ID!
@@ -956,6 +1001,42 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_markAllMessages_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["accesstoken"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["accesstoken"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_markOneMessage_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["accesstoken"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["accesstoken"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg1
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_validateAccessToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -1098,6 +1179,40 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _MarkedMessage_id(ctx context.Context, field graphql.CollectedField, obj *model.MarkedMessage) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "MarkedMessage",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _Message_id(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
 	defer func() {
@@ -1423,6 +1538,85 @@ func (ec *executionContext) _Mutation_validateAccessToken(ctx context.Context, f
 	res := resTmp.(*model.UserEntity)
 	fc.Result = res
 	return ec.marshalOUserEntity2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐUserEntity(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_markOneMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_markOneMessage_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().MarkOneMessage(rctx, args["accesstoken"].(string), args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_markAllMessages(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_markAllMessages_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().MarkAllMessages(rctx, args["accesstoken"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.MarkedMessage)
+	fc.Result = res
+	return ec.marshalNMarkedMessage2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMarkedMessage(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_topics(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4766,6 +4960,33 @@ func (ec *executionContext) unmarshalInputTopicsRequestParams(ctx context.Contex
 
 // region    **************************** object.gotpl ****************************
 
+var markedMessageImplementors = []string{"MarkedMessage"}
+
+func (ec *executionContext) _MarkedMessage(ctx context.Context, sel ast.SelectionSet, obj *model.MarkedMessage) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, markedMessageImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MarkedMessage")
+		case "id":
+			out.Values[i] = ec._MarkedMessage_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var messageImplementors = []string{"Message"}
 
 func (ec *executionContext) _Message(ctx context.Context, sel ast.SelectionSet, obj *model.Message) graphql.Marshaler {
@@ -4854,6 +5075,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = graphql.MarshalString("Mutation")
 		case "validateAccessToken":
 			out.Values[i] = ec._Mutation_validateAccessToken(ctx, field)
+		case "markOneMessage":
+			out.Values[i] = ec._Mutation_markOneMessage(ctx, field)
+		case "markAllMessages":
+			out.Values[i] = ec._Mutation_markAllMessages(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5656,6 +5884,43 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
+func (ec *executionContext) marshalNMarkedMessage2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMarkedMessage(ctx context.Context, sel ast.SelectionSet, v []*model.MarkedMessage) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMarkedMessage2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMarkedMessage(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
 func (ec *executionContext) marshalNMessage2ᚕᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v []*model.Message) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -6045,6 +6310,17 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 	return ec.marshalOInt2int(ctx, sel, *v)
+}
+
+func (ec *executionContext) marshalOMarkedMessage2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMarkedMessage(ctx context.Context, sel ast.SelectionSet, v model.MarkedMessage) graphql.Marshaler {
+	return ec._MarkedMessage(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOMarkedMessage2ᚖgithubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMarkedMessage(ctx context.Context, sel ast.SelectionSet, v *model.MarkedMessage) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._MarkedMessage(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOMessage2githubᚗcomᚋmrdulinᚋgqlgenᚑcnodeᚋgraphᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v model.Message) graphql.Marshaler {

@@ -8,4 +8,6 @@ type Query {
 
 type Mutation {
   validateAccessToken(accesstoken: String!): UserEntity
+  markOneMessage(accesstoken: String!, id: String!): String
+  markAllMessages(accesstoken: String!): [MarkedMessage]!
 }

@@ -14,6 +14,14 @@ func (r *mutationResolver) ValidateAccessToken(ctx context.Context, accesstoken 
 	return r.UserService.ValidateAccessToken(accesstoken), nil
 }
 
+func (r *mutationResolver) MarkOneMessage(ctx context.Context, accesstoken string, id string) (*string, error) {
+	return r.MessageService.MarkOneMessage(accesstoken, id), nil
+}
+
+func (r *mutationResolver) MarkAllMessages(ctx context.Context, accesstoken string) ([]*model.MarkedMessage, error) {
+	return r.MessageService.MarkAllMessages(accesstoken), nil
+}
+
 func (r *queryResolver) Topics(ctx context.Context, params model.TopicsRequestParams) ([]*model.Topic, error) {
 	return r.TopicService.GetTopicsByPage(&params), nil
 }

@@ -8,6 +8,13 @@ import (
 	"github.com/mrdulin/gqlgen-cnode/utils/http"
 )
 
+type MarkOneMessageRequestPayload struct {
+	Accesstoken string `json:"accesstoken"`
+}
+type MarkAllMessagesRequestPayload struct {
+	Accesstoken string `json:"accesstoken"`
+}
+
 type messageService struct {
 	HttpClient http.Client
 	BaseURL    string
@@ -16,6 +23,8 @@ type messageService struct {
 type MessageService interface {
 	GetMessages(accesstoken, mdrender string) *model.MessagesResponse
 	GetUnreadMessage(accesstoken string) int
+	MarkOneMessage(accesstoken, id string) *string
+	MarkAllMessages(accesstoken string) []*model.MarkedMessage
 }
 
 func NewMessageService(httpClient http.Client, BaseURL string) *messageService {
@@ -55,4 +64,24 @@ func (m *messageService) GetUnreadMessage(accesstoken string) int {
 		return res
 	}
 	return res
+}
+
+func (m *messageService) MarkOneMessage(accesstoken, id string) *string {
+	endpoint := m.BaseURL + "/message/mark_one/" + id
+	var res model.MarkOneMessageResponse
+	if err := m.HttpClient.Post(endpoint, &MarkOneMessageRequestPayload{Accesstoken: accesstoken}, &res); err != nil {
+		fmt.Println(err)
+		return &res.MarkedMsgId
+	}
+	return &res.MarkedMsgId
+}
+
+func (m *messageService) MarkAllMessages(accesstoken string) []*model.MarkedMessage {
+	endpoint := m.BaseURL + "/message/mark_all"
+	var res model.MarkAllMessagesResponse
+	if err := m.HttpClient.Post(endpoint, &MarkAllMessagesRequestPayload{Accesstoken: accesstoken}, &res); err != nil {
+		fmt.Println(err)
+		return res.MarkedMsgs
+	}
+	return res.MarkedMsgs
 }

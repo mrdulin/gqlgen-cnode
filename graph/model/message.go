@@ -14,3 +14,15 @@ type MessagesResponse struct {
 	HasReadMessages    []*Message `json:"has_read_messages"`
 	HasnotReadMessages []*Message `json:"hasnot_read_messages"`
 }
+
+type MarkOneMessageResponse struct {
+	MarkedMsgId string `json:"marked_msg_id"`
+}
+
+type MarkedMessage struct {
+	ID string `json:"id"`
+}
+
+type MarkAllMessagesResponse struct {
+	MarkedMsgs []*MarkedMessage `json:"marked_msgs"`
+}
