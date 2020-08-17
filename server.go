@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/mrdulin/gqlgen-cnode/utils/hook"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/mrdulin/gqlgen-cnode/graph/generated"
@@ -15,6 +17,10 @@ import (
 
 const defaultPort = "8080"
 const BaseURL = "https://cnodejs.org/api/v1"
+
+func init() {
+	hook.RunModelGen()
+}
 
 func main() {
 	port := os.Getenv("PORT")

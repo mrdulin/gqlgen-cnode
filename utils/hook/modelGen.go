@@ -1,6 +1,4 @@
-// +build ignore
-
-package main
+package hook
 
 import (
 	"fmt"
@@ -17,7 +15,7 @@ func mutateHook(b *modelgen.ModelBuild) *modelgen.ModelBuild {
 		if strings.Contains(strings.ToLower(model.Name), "params") {
 			for _, field := range model.Fields {
 				tagFieldName := strings.ReplaceAll(strings.Split(field.Tag, ":")[1], "\"", "")
-				queryTag := fmt.Sprintf(`url:"%v,omitempty"`, tagFieldName)
+				queryTag := fmt.Sprintf(`url:"%v"`, tagFieldName)
 				field.Tag = fmt.Sprintf(`%v %v`, field.Tag, queryTag)
 			}
 		}
@@ -25,7 +23,7 @@ func mutateHook(b *modelgen.ModelBuild) *modelgen.ModelBuild {
 	return b
 }
 
-func main() {
+func RunModelGen() {
 	cfg, err := config.LoadConfigFromDefaultLocations()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "failed to load config", err.Error())
