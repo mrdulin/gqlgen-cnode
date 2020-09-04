@@ -1,5 +1,7 @@
 # gqlgen-cnode
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/mrdulin/gqlgen-cnode)](https://goreportcard.com/report/github.com/mrdulin/gqlgen-cnode)
+
 A GraphQL APIs for [CNode](https://cnodejs.org) community built with [99designs/gqlgen](https://github.com/99designs/gqlgen) package.
 
 ### Usage
